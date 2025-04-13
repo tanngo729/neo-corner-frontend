@@ -5,7 +5,7 @@ import viVN from 'antd/lib/locale/vi_VN';
 import { setupInterceptors } from './utils/apiHelper';
 import { clientInstance } from './config/api';
 import { AuthProvider } from './contexts/AuthContext';
-import { CartProvider } from './contexts/CartContext'; // Thêm import CartProvider
+import { CartProvider } from './contexts/CartContext';
 import { AdminAuthProvider } from './contexts/AdminAuthContext';
 import { useTheme } from './hooks/useTheme';
 import ClientConfigProvider from './theme/ClientConfigProvider';
