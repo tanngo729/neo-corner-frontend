@@ -1,0 +1,222 @@
+@import "../../../../styles/variables.scss";
+@import "../../../../styles/mixins.scss";
+
+.product-filter {
+  .filter-card {
+    margin-bottom: $spacing-md;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    transition: all $transition-speed;
+    border: 1px solid $border-color;
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    .ant-card-body {
+      padding: $spacing-md;
+    }
+    
+    h5 {
+      position: relative;
+      font-size: $font-size-md;
+      margin-bottom: $spacing-md;
+      padding-bottom: $spacing-xs;
+      font-weight: 600;
+      color: $text-color;
+      border-bottom: 1px solid $border-color;
+      
+      .anticon {
+        margin-right: $spacing-xs;
+        color: $primary-color;
+      }
+    }
+  }
+  
+  // Category item styling
+  .category-item {
+    padding: $spacing-xs 0;
+    margin: 0;
+    cursor: pointer;
+    transition: all $transition-speed;
+    border-bottom: 1px dashed rgba($border-color, 0.5);
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    &:hover, &.active {
+      background-color: rgba($primary-light, 0.1);
+    }
+    
+    .ant-checkbox-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      color: $text-color;
+      font-weight: normal;
+      
+      &:hover {
+        color: $primary-color;
+      }
+      
+      .category-name {
+        font-weight: 500;
+      }
+      
+      .product-count {
+        font-size: $font-size-sm;
+        color: $text-light;
+        margin-left: $spacing-xs;
+      }
+    }
+  }
+  
+  // Subcategories styling in filter
+  .subcategories-in-filter {
+    padding-left: $spacing-md;
+    
+    .subcategory-item {
+      padding: 4px 0 !important;
+      border-bottom: none !important;
+      
+      &:hover, &.active {
+        background-color: rgba($primary-light, 0.15);
+      }
+      
+      .ant-checkbox-wrapper {
+        font-size: $font-size-sm;
+        font-weight: normal;
+        
+        &:hover {
+          color: $primary-color;
+        }
+      }
+    }
+  }
+  
+  // Price slider
+  .price-slider {
+    .ant-slider {
+      margin: $spacing-md 0;
+      
+      .ant-slider-track {
+        background-color: $primary-color;
+      }
+      
+      .ant-slider-handle {
+        border-color: $primary-color;
+        
+        &:focus {
+          box-shadow: 0 0 0 5px rgba($primary-color, 0.2);
+        }
+      }
+    }
+    
+    .price-range-display {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing-md;
+      font-size: $font-size-sm;
+      color: $text-light;
+      
+      span {
+        background-color: $bg-light;
+        padding: 5px 10px;
+        border-radius: $border-radius;
+        border: 1px solid $border-color;
+        min-width: 100px;
+        text-align: center;
+      }
+    }
+    
+    button {
+      transition: all $transition-speed;
+      font-weight: 500;
+      height: 40px;
+    }
+  }
+  
+  // Reset button
+  .reset-filter {
+    margin-top: $spacing-md;
+    
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all $transition-speed;
+      height: 40px;
+      
+      .anticon {
+        margin-right: $spacing-xs;
+      }
+      
+      &:hover {
+        color: $error-color;
+        border-color: $error-color;
+      }
+    }
+  }
+  
+  // Loading and empty states
+  .loading-container {
+    padding: $spacing-md 0;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .ant-empty {
+    margin: $spacing-sm 0;
+    
+    .ant-empty-description {
+      color: $text-light;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 992px) {
+  .product-filter {
+    margin-top: $spacing-sm; // Thêm margin-top
+    
+    // Làm cho bộ lọc trở nên nổi bật hơn trên mobile
+    .filter-card {
+      margin-bottom: $spacing-sm;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid $border-color;
+    }
+    
+    // Tối ưu hóa cho màn hình nhỏ
+    .ant-card-body {
+      padding: $spacing-sm $spacing-md;
+    }
+    
+    // Giảm kích thước giữa các mục để hiển thị nhiều hơn
+    .category-item, .subcategory-item {
+      padding: 6px 0 !important;
+    }
+    
+    // Cải thiện trải nghiệm người dùng trên mobile
+    .price-slider {
+      .price-range-display {
+        span {
+          min-width: 80px;
+          font-size: 12px;
+          padding: 4px 8px;
+        }
+      }
+      
+      button {
+        height: 36px;
+      }
+    }
+    
+    // Giảm margin giữa các thành phần
+    .reset-filter {
+      margin-top: $spacing-sm;
+    }
+  }
+}

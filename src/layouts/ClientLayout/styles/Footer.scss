@@ -1,0 +1,179 @@
+// src/layouts/ClientLayout/styles/Footer.scss
+@import "../../../styles/mixins.scss";
+@import "../../../styles/variables.scss";
+
+// Footer component styles
+.app-footer {
+  width: 100% !important; // Sửa từ 100vw thành 100%
+  padding: 0 !important;
+  background: $primary-color !important; // Màu đỏ Jollibee
+  color: #fff !important;
+  margin-top: auto; // Push to bottom of flex container
+  overflow: hidden; // Ngăn scroll ngang
+  
+  .container {
+    @include container;
+    padding: $spacing-xl $spacing-md $spacing-lg;
+    
+    @include respond-below(md) {
+      padding: $spacing-lg $spacing-md;
+    }
+  }
+  
+  .footer-title {
+    color: $secondary-color !important; // Màu vàng Jollibee
+    margin-bottom: $spacing-md !important;
+    font-size: $font-size-lg !important;
+    
+    @include respond-below(sm) {
+      margin-bottom: $spacing-sm !important;
+      font-size: $font-size-md !important;
+    }
+  }
+  
+  .footer-text {
+    color: rgba(255, 255, 255, 0.8) !important;
+    display: block;
+    margin-bottom: $spacing-md;
+    line-height: 1.6;
+    
+    @include respond-below(sm) {
+      font-size: $font-size-sm;
+    }
+  }
+  
+  .social-links {
+    @include flex(row, flex-start, center);
+    gap: $spacing-sm;
+    margin-top: $spacing-md;
+    
+    .social-btn {
+      color: white !important;
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      @include flex(row, center, center);
+      border: none !important;
+      
+      &:hover {
+        background-color: $secondary-color !important;
+        transform: translateY(-3px);
+        color: $text-color !important;
+      }
+      
+      // Đảm bảo các icon ở giữa nút
+      &.custom-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        .anticon {
+          font-size: 18px;
+        }
+      }
+    }
+  }
+  
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    li {
+      margin-bottom: $spacing-sm;
+      
+      a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        transition: all $transition-speed;
+        font-size: $font-size-sm;
+        
+        &:hover {
+          color: $secondary-color;
+          padding-left: $spacing-xs;
+        }
+      }
+    }
+  }
+  
+  .contact-info {
+    color: rgba(255, 255, 255, 0.8);
+    
+    p {
+      margin-bottom: $spacing-sm;
+      line-height: 1.6;
+      font-size: $font-size-sm;
+      display: flex;
+      align-items: flex-start;
+    }
+    
+    .contact-icon {
+      margin-right: $spacing-xs;
+      color: $secondary-color; // Màu vàng Jollibee
+      margin-top: 4px;
+    }
+  }
+  
+  .footer-divider {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    margin: $spacing-lg 0 !important;
+    
+    @include respond-below(md) {
+      margin: $spacing-md 0 !important;
+    }
+  }
+  
+  .footer-bottom {
+    @include flex(row, space-between, center);
+    flex-wrap: wrap; // Cho phép wrap trên màn hình nhỏ
+    
+    .copyright {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: $font-size-xs;
+    }
+    
+    .payment-methods {
+      @include flex(row, flex-end, center);
+      gap: $spacing-sm;
+      flex-wrap: wrap; // Cho phép wrap khi không đủ không gian
+      
+      img {
+        height: 24px;
+        width: auto; // Đảm bảo tỉ lệ hình ảnh đúng
+        filter: grayscale(100%) brightness(1.5);
+        transition: filter $transition-speed;
+        background-color: white;
+        border-radius: 4px;
+        padding: 2px;
+        
+        &:hover {
+          filter: grayscale(0%) brightness(1);
+        }
+      }
+    }
+    
+    // Responsive styles for footer bottom
+    @include respond-below(md) {
+      flex-direction: column;
+      text-align: center;
+      gap: $spacing-md;
+      
+      .payment-methods {
+        justify-content: center;
+      }
+    }
+  }
+  
+  // Stacked columns on mobile
+  @include respond-below(sm) {
+    .ant-col {
+      margin-bottom: $spacing-lg;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

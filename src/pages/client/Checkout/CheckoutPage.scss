@@ -1,0 +1,221 @@
+.checkout-page {
+  padding: 30px 0;
+  
+  &.empty-cart {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .checkout-loading {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    p {
+      margin-top: 16px;
+      color: #666;
+    }
+  }
+  
+  .checkout-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+    
+    @media (max-width: 768px) {
+      padding: 0 12px;
+    }
+  }
+  
+  .page-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    text-align: center;
+    color: #333;
+    
+    @media (max-width: 768px) {
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+  }
+  
+  .checkout-steps {
+    margin-bottom: 30px;
+    
+    @media (max-width: 768px) {
+      margin-bottom: 20px;
+    }
+  }
+  
+  .checkout-content {
+    .checkout-main {
+      margin-bottom: 24px;
+    }
+    
+    .checkout-sidebar {
+      .order-summary-wrapper {
+        position: sticky;
+        top: 80px;
+      }
+    }
+  }
+  
+  .steps-content {
+    min-height: 200px;
+    margin-bottom: 24px;
+    padding: 24px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    
+    @media (max-width: 768px) {
+      padding: 16px;
+      min-height: auto;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #333;
+    }
+  }
+  
+  .steps-action {
+    margin-top: 24px;
+    display: flex;
+    justify-content: flex-end;
+    
+    @media (max-width: 768px) {
+      justify-content: space-between;
+    }
+  }
+  
+  .shipping-section {
+    .ant-form-item-label {
+      font-weight: 500;
+    }
+  }
+  
+  .order-confirmation {
+    .confirmation-card {
+      background-color: #f9f9f9;
+      border-radius: 8px;
+    }
+    
+    .confirmation-section {
+      margin-bottom: 20px;
+      
+      h4 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #333;
+      }
+      
+      .info-item {
+        display: flex;
+        margin-bottom: 8px;
+        
+        .label {
+          width: 140px;
+          font-weight: 500;
+          color: #666;
+        }
+        
+        .value {
+          flex: 1;
+          color: #333;
+        }
+      }
+      
+      .shipping-method, 
+      .payment-method {
+        padding: 8px 0;
+        color: #333;
+      }
+      
+      .order-items {
+        margin-top: 8px;
+        
+        .order-item {
+          display: flex;
+          align-items: center;
+          padding: 8px 0;
+          border-bottom: 1px dashed #eee;
+          
+          &:last-child {
+            border-bottom: none;
+          }
+          
+          .item-quantity {
+            margin-right: 8px;
+            font-weight: 500;
+            color: #666;
+            min-width: 30px;
+          }
+          
+          .item-name {
+            flex: 1;
+            color: #333;
+          }
+          
+          .item-price {
+            font-weight: 500;
+            color: #ff4d4f;
+          }
+        }
+      }
+      
+      .order-totals {
+        margin-top: 16px;
+        
+        .total-row {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 8px;
+          
+          &.discount {
+            color: #52c41a;
+          }
+          
+          &.grand-total {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+          }
+        }
+      }
+    }
+  }
+  
+  .empty-cart-message {
+    text-align: center;
+    padding: 40px 20px;
+    
+    .empty-icon {
+      font-size: 64px;
+      color: #d9d9d9;
+      margin-bottom: 16px;
+    }
+    
+    h2 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    
+    p {
+      color: #666;
+      margin-bottom: 24px;
+    }
+  }
+}

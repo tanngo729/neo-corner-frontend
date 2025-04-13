@@ -1,0 +1,166 @@
+@import '../../../styles/variables.scss';
+@import '../../../styles/mixins.scss';
+
+.search-page {
+  padding: 30px 0;
+  width: 100%;
+  background-color: #fafafa;
+
+  .search-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+
+  .search-title {
+    margin-bottom: 6px;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(to right, $primary-color, $primary-dark);
+      border-radius: 3px;
+    }
+  }
+  
+  .search-count {
+    display: block;
+    color: $text-light;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+
+  .filter-card {
+    margin-bottom: 20px;
+    border-radius: $border-radius-lg;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    
+    .filter-section {
+      margin-bottom: 15px;
+      
+      h5 {
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+      
+      .price-range-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+        
+        .ant-typography {
+          color: $text-light;
+          font-size: 14px;
+        }
+      }
+      
+      .ant-slider {
+        margin: 15px 6px;
+        
+        .ant-slider-track {
+          background-color: $primary-color;
+        }
+        
+        .ant-slider-handle {
+          border-color: $primary-color;
+          
+          &:focus {
+            box-shadow: 0 0 0 5px rgba($primary-color, 0.2);
+          }
+        }
+      }
+    }
+  }
+
+  .pagination-container {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+    border-top: 1px solid $border-color;
+  }
+  
+  .empty-result {
+    padding: 40px 0;
+  }
+  
+  // Kiểu dáng cho grid sản phẩm
+  .products-grid {
+    width: 100%;
+    
+    .product-column {
+      margin-bottom: 20px;
+      display: flex;
+    }
+  }
+  
+  // Responsive
+  @media (max-width: 992px) {
+    padding: 20px 0;
+    
+    .search-title {
+      font-size: 24px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .ant-select,
+    .ant-input-search {
+      width: 100%;
+    }
+    
+    .products-grid {
+      .product-column {
+        .product-card-wrapper {
+          .product-card {
+            .product-card-content {
+              padding: 12px;
+              
+              .product-title {
+                font-size: 14px;
+                min-height: 40px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: 15px 0;
+    
+    .search-container {
+      padding: 0 10px;
+    }
+    
+    .search-title {
+      font-size: 20px;
+    }
+    
+    .filter-card {
+      margin-bottom: 15px;
+    }
+    
+    .pagination-container {
+      margin-top: 30px;
+    }
+    
+    .products-grid [class*="ant-col"] {
+      padding-left: 6px !important;
+      padding-right: 6px !important;
+    }
+  }
+}

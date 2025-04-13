@@ -1,0 +1,82 @@
+// src/styles/variables.scss
+
+// Primary colors - Bảng màu mới (Jollibee theme)
+$primary-color: #e31836;      // Đỏ Jollibee - màu chính thương hiệu
+$primary-light: #FFEBE6;      // Đỏ rất nhạt - cho backgrounds
+$primary-dark: #e31836c4;       // Đỏ đậm hơn - cho hover
+$secondary-color: #ffc522;    // Vàng Jollibee - màu phụ, dùng cho nhấn mạnh
+
+// Background và text colors
+$bg-color: #ffffff;
+$bg-light: #FFF5E6;           // Vàng nhạt (cho backgrounds)
+$bg-dark: #F0E6DC;
+$text-color: #333333;         // Đen nhạt - màu text chính
+$text-light: #666666;
+$text-muted: #999999;
+
+// Status colors
+$success-color: #28a745;
+$warning-color: #ffc107;
+$error-color: #dc3545;
+$info-color: #2980B9;         // Xanh lam Jollibee
+
+// Supplementary colors
+$border-color: #FFE0CC;
+$shadow-color: rgba(242, 95, 92, 0.1);  // Shadow màu primary
+
+// Sizes and spacing
+$container-width: 1200px;
+$header-height: 70px;
+$footer-height: auto;
+$border-radius: 4px;
+$border-radius-lg: 8px;
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// Typography
+$font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size-md: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-xxl: 24px;
+$font-size-title: 32px;
+
+// Animation
+$transition-speed: 0.2s;
+
+// Z-index layers
+$z-index-dropdown: 10;
+$z-index-sticky: 20;
+$z-index-fixed: 30;
+$z-index-modal-backdrop: 40;
+$z-index-modal: 50;
+$z-index-popover: 60;
+$z-index-tooltip: 70;
+
+// Dark Mode values
+$dark-mode: (
+  bg-color: #1a1a1a,
+  bg-light: #262626,
+  bg-dark: #333333,
+  text-color: #f0f0f0,
+  text-light: #cccccc,
+  text-muted: #a0a0a0,
+  border-color: #444444,
+  shadow-color: rgba(242, 95, 92, 0.2)
+);
+
+// Responsive adjustments for devices below 576px
+$small-device: (
+  font-size-md: 15px,
+  font-size-lg: 17px,
+  font-size-xl: 19px,
+  font-size-xxl: 22px,
+  font-size-title: 28px,
+  spacing-lg: 20px,
+  spacing-xl: 28px
+);

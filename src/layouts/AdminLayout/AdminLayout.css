@@ -1,0 +1,511 @@
+/* src/layouts/AdminLayout.css */
+:root {
+  /* Light Theme Colors */
+  --primary-bg: #F5F5F5;
+  --secondary-bg: #FFFFFF;
+  --text-primary: #2C3E50;
+  --text-secondary: #34495E;
+  --border-color: #BDC3C7;
+  --accent-primary: #3498DB;
+  --accent-secondary: #2980B9;
+  --hover-bg: #ECF0F1;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+
+  /* Sidebar Dimensions */
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 80px;
+  --header-height: 64px;
+  
+  /* Transition Speed */
+  --transition-speed: 0.3s;
+}
+
+/* Dark Theme Variables */
+:root.dark-theme {
+  --primary-bg: #0B0C10;
+  --secondary-bg: #1F2833;
+  --text-primary: #E0E0E0;
+  --text-secondary: #C5C6C7;
+  --border-color: #2C3E50; /* Updated border color */
+  --accent-primary: #4ECDC4;  /* Updated accent color */
+  --accent-secondary: #2A9D8F; /* Updated secondary accent */
+  --hover-bg: #2C3442;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Global Transitions */
+.admin-namespace * {
+  transition: 
+    background-color var(--transition-speed) ease,
+    color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.admin-namespace body {
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+}
+
+/* Layout Container */
+.admin-layout {
+  min-height: 100vh;
+  display: flex;
+  background-color: var(--primary-bg);
+}
+
+/* Sidebar Styling */
+.admin-sider {
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  background-color: var(--secondary-bg);
+  box-shadow: 2px 0 8px var(--shadow-color);
+  transition: all var(--transition-speed) ease;
+  width: var(--sidebar-width);
+}
+
+.admin-sider.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+/* Logo Area */
+.logo {
+  height: var(--header-height);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--accent-secondary);
+  color: white;
+  overflow: hidden;
+}
+
+.logo h1 {
+  margin: 0;
+  font-size: 24px;
+  white-space: nowrap;
+}
+
+/* Main Layout Area */
+.site-layout {
+  position: relative;
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  transition: all var(--transition-speed) ease;
+}
+
+.site-layout.collapsed {
+  margin-left: var(--sidebar-collapsed-width);
+  width: calc(100% - var(--sidebar-collapsed-width));
+}
+
+/* Header Styling */
+.admin-header {
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  background-color: var(--secondary-bg);
+  height: var(--header-height);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.trigger-button {
+  color: var(--text-primary);
+  font-size: 18px;
+  padding: 0 12px;
+  cursor: pointer;
+  transition: color var(--transition-speed) ease;
+}
+
+.trigger-button:hover {
+  color: var(--accent-primary);
+}
+
+/* Right Side Header Elements */
+.admin-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.notification-button {
+  color: var(--text-primary);
+}
+
+.user-dropdown {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  color: var(--text-primary);
+}
+
+.user-dropdown:hover {
+  background-color: var(--hover-bg);
+}
+
+.user-name {
+  margin-left: 8px;
+  display: inline-block;
+}
+
+/* Content Area */
+.admin-content {
+  padding: 24px;
+  background-color: var(--primary-bg);
+  min-height: calc(100vh - var(--header-height));
+}
+
+/* Ant Design Menu Overrides - Updated for better styling */
+.admin-namespace .ant-menu {
+  background-color: var(--secondary-bg) !important;
+  color: var(--text-primary) !important;
+  border-right: none !important;
+}
+
+.admin-namespace .ant-menu-item {
+  color: var(--text-primary) !important;
+}
+
+.admin-namespace .ant-menu-item:hover {
+  color: var(--accent-primary) !important;
+}
+
+/* Modified selected menu item */
+.admin-namespace .ant-menu-item-selected {
+  background-color: transparent !important; 
+}
+
+.admin-namespace .ant-menu-item-selected a {
+  color: var(--accent-primary) !important;
+}
+
+.admin-namespace .ant-menu-item::after {
+  border-right-color: var(--accent-primary) !important;
+}
+
+/* Button Overrides */
+.admin-namespace .ant-btn {
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.admin-namespace .ant-btn-primary {
+  background-color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  color: var(--secondary-bg) !important;
+}
+
+/* Dark mode button styles updated */
+.admin-namespace.dark-theme .ant-btn-primary {
+  background-color: var(--accent-secondary) !important;
+  border-color: var(--accent-secondary) !important;
+  color: white !important;
+}
+
+.admin-namespace.dark-theme .ant-btn-primary:hover,
+.admin-namespace.dark-theme .ant-btn-primary:focus {
+  background-color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  opacity: 0.85 !important;
+}
+
+/* Hover styles for buttons in dark mode */
+.admin-namespace.dark-theme .ant-btn:not(.ant-btn-primary):not(.ant-btn-dangerous):hover {
+  color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+}
+
+/* Scrollbar Styling */
+.admin-namespace ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.admin-namespace ::-webkit-scrollbar-track {
+  background: var(--primary-bg);
+}
+
+.admin-namespace ::-webkit-scrollbar-thumb {
+  background: var(--accent-secondary);
+  border-radius: 4px;
+}
+
+.admin-namespace ::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .admin-sider {
+    transform: translateX(-100%);
+    box-shadow: none;
+  }
+  
+  .admin-sider.collapsed {
+    transform: translateX(0);
+    width: var(--sidebar-width);
+  }
+  
+  .site-layout {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .site-layout.collapsed {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* Transition Classes for Theme Switching */
+.theme-transition {
+  transition: all var(--transition-speed) ease;
+}
+
+/* Card Styling for Dark Mode */
+.admin-namespace.dark-theme .ant-card {
+  background-color: var(--secondary-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+.admin-namespace.dark-theme .ant-card-head {
+  border-bottom-color: var(--border-color) !important;
+}
+
+/* Form Controls for Dark Mode */
+.admin-namespace.dark-theme .ant-form-item-label > label {
+  color: var(--text-primary) !important;
+}
+
+.admin-namespace.dark-theme .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  background-color: var(--secondary-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+.admin-namespace.dark-theme .ant-select-dropdown {
+  background-color: var(--secondary-bg) !important;
+}
+
+.admin-namespace.dark-theme .ant-select-item {
+  color: var(--text-primary) !important;
+}
+
+.admin-namespace.dark-theme .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: var(--hover-bg) !important;
+}
+
+/* Fix for switch component in dark mode */
+.admin-namespace.dark-theme .ant-switch {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.admin-namespace.dark-theme .ant-switch-checked {
+  background-color: var(--accent-secondary) !important;
+}
+
+/* Focus styles */
+.admin-namespace.dark-theme .ant-btn:focus,
+.admin-namespace.dark-theme .ant-input:focus,
+.admin-namespace.dark-theme .ant-select-focused .ant-select-selector {
+  border-color: var(--accent-secondary) !important;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2) !important;
+}
+
+.admin-list-page {
+  width: 100%;
+}
+
+/* Page header */
+.admin-namespace .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.admin-namespace .page-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Add button */
+.admin-namespace .btn-add {
+  background-color: var(--accent-primary) !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  transition: background-color 0.3s !important;
+}
+
+.admin-namespace .btn-add:hover {
+  background-color: var(--accent-secondary) !important;
+}
+
+.admin-namespace .btn-add::before {
+  content: "+" !important;
+  margin-right: 6px !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+}
+
+/* Dark mode add button */
+.admin-namespace.dark-theme .btn-add {
+  background-color: var(--accent-secondary) !important;
+}
+
+.admin-namespace.dark-theme .btn-add:hover {
+  background-color: var(--accent-primary) !important;
+  opacity: 0.85 !important;
+}
+
+/* Filters */
+.admin-namespace .page-filters {
+  display: flex !important;
+  gap: 12px !important;
+  margin-bottom: 24px !important;
+  flex-wrap: wrap !important;
+}
+
+.admin-namespace .filter-search {
+  flex: 1 !important;
+  min-width: 200px !important;
+  padding: 8px 12px !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 4px !important;
+  background-color: var(--secondary-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.admin-namespace .filter-select {
+  min-width: 160px !important;
+  padding: 8px 12px !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 4px !important;
+  background-color: var(--secondary-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.admin-namespace .btn-reset {
+  padding: 8px 16px !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 4px !important;
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  cursor: pointer !important;
+  transition: all 0.3s !important;
+}
+
+.admin-namespace .btn-reset:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+/* Data tables */
+.admin-namespace .admin-table .ant-table {
+  background-color: var(--secondary-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.admin-namespace .admin-table .ant-table-thead > tr > th {
+  background-color: var(--secondary-bg) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  padding: 12px 16px !important;
+}
+
+.admin-namespace .admin-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--border-color) !important;
+  padding: 12px 16px !important;
+  color: var(--text-primary) !important;
+}
+
+.admin-namespace .admin-table .ant-table-tbody > tr:hover > td {
+  background-color: var(--hover-bg) !important;
+}
+
+/* Action buttons */
+.admin-namespace .table-actions {
+  display: flex !important;
+  gap: 8px !important;
+}
+
+.admin-namespace .btn-action {
+  border: none !important;
+  padding: 6px 12px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: opacity 0.3s !important;
+}
+
+.admin-namespace .btn-action:hover {
+  opacity: 0.85 !important;
+}
+
+.admin-namespace .btn-edit {
+  background-color: var(--accent-primary) !important;
+  color: white !important;
+}
+
+.admin-namespace .btn-delete {
+  background-color: #f5222d !important;
+  color: white !important;
+}
+
+/* Dark mode action buttons */
+.admin-namespace.dark-theme .btn-edit {
+  background-color: var(--accent-secondary) !important;
+}
+
+.admin-namespace.dark-theme .btn-edit:hover {
+  background-color: var(--accent-primary) !important;
+  opacity: 0.85 !important;
+}
+
+/* Dark mode input fields */
+.admin-namespace.dark-theme .filter-search,
+.admin-namespace.dark-theme .filter-select {
+  background-color: var(--secondary-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.admin-namespace.dark-theme .admin-table .ant-empty-description {
+  color: var(--text-secondary) !important;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .admin-namespace .page-filters {
+    flex-direction: column !important;
+  }
+  
+  .admin-namespace .filter-search, 
+  .admin-namespace .filter-select, 
+  .admin-namespace .btn-reset {
+    width: 100% !important;
+  }
+  
+  .admin-namespace .table-actions {
+    flex-direction: column !important;
+  }
+}

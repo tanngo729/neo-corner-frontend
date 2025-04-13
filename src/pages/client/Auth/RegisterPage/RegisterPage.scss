@@ -1,0 +1,129 @@
+@import "../../../../styles/variables.scss";
+@import "../../../../styles/mixins.scss";
+
+.register-page-container {
+  min-height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: $spacing-lg 0;
+  background-color: $bg-light;
+
+  .register-box {
+    width: 100%;
+    max-width: 500px;
+    padding: $spacing-lg;
+    background-color: $bg-color;
+    border-radius: $border-radius;
+    box-shadow: 0 2px 8px $shadow-color;
+
+    .register-header {
+      text-align: center;
+      margin-bottom: $spacing-lg;
+
+      h2 {
+        font-size: $font-size-xxl;
+        color: $text-color;
+        margin-bottom: $spacing-sm;
+      }
+
+      p {
+        color: $text-light;
+        margin-bottom: 0;
+      }
+    }
+
+    .agreement-container {
+      margin-bottom: $spacing-sm;
+      
+      a {
+        color: $primary-color;
+        
+        &:hover {
+          color: $primary-dark;
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .register-form-button {
+      height: 45px;
+      font-size: $font-size-md;
+      margin-top: $spacing-md;
+    }
+
+    .login-now {
+      text-align: center;
+      margin: $spacing-md 0;
+      color: $text-light;
+
+      a {
+        color: $primary-color;
+        
+        &:hover {
+          color: $primary-dark;
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .social-login {
+      display: flex;
+      justify-content: space-between;
+      gap: $spacing-md;
+
+      .ant-btn {
+        flex: 1;
+        height: 40px;
+        font-weight: 500;
+
+        .icon-google, .icon-facebook {
+          display: inline-block;
+          width: 16px;
+          height: 16px;
+          margin-right: $spacing-xs;
+        }
+        
+        &.google-btn {
+          background-color: #ffffff;
+          color: #4285F4;
+          border-color: #4285F4;
+          
+          &:hover {
+            color: darken(#4285F4, 10%);
+            border-color: darken(#4285F4, 10%);
+          }
+        }
+
+        &.facebook-btn {
+          background-color: #1877F2;
+          color: #ffffff;
+          border-color: #1877F2;
+          
+          &:hover {
+            background-color: darken(#1877F2, 10%);
+            border-color: darken(#1877F2, 10%);
+          }
+        }
+      }
+    }
+  }
+
+  @include respond-below(sm) {
+    padding: $spacing-md $spacing-sm;
+    
+    .register-box {
+      padding: $spacing-md;
+      
+      .register-header {
+        h2 {
+          font-size: $font-size-xl;
+        }
+        
+        p {
+          font-size: $font-size-sm;
+        }
+      }
+    }
+  }
+}

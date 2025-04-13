@@ -1,0 +1,350 @@
+@import "../../../../styles/variables.scss";
+@import "../../../../styles/mixins.scss";
+
+.cart-summary {
+  background-color: $bg-color;
+  border-radius: $border-radius-lg;
+  box-shadow: 0 2px 8px rgba($shadow-color, 0.06);
+  padding: $spacing-md;
+  border: 1px solid rgba($border-color, 0.1);
+  
+  .card-header {
+    padding-bottom: $spacing-sm;
+    border-bottom: 1px solid rgba($border-color, 0.3);
+    margin-bottom: $spacing-sm;
+    
+    h2 {
+      font-size: $font-size-md;
+      margin: 0;
+      font-weight: 600;
+      color: $text-color;
+      position: relative;
+      padding-left: $spacing-sm;
+      
+      &:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 16px;
+        background-color: $secondary-color;
+        border-radius: 2px;
+      }
+    }
+  }
+  
+  .summary-content {
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: $spacing-xs;
+      padding: $spacing-xs 0;
+      
+      span:first-child {
+        color: $text-light;
+        font-size: $font-size-sm;
+      }
+      
+      span:last-child {
+        font-weight: 600;
+        font-size: $font-size-sm;
+      }
+      
+      &.discount {
+        color: $success-color;
+        background-color: rgba($success-color, 0.08);
+        padding: $spacing-sm;
+        border-radius: $border-radius;
+        margin: $spacing-sm 0;
+        border: 1px dashed rgba($success-color, 0.3);
+        
+        span:first-child {
+          color: $success-color;
+          font-weight: 500;
+        }
+        
+        span:last-child {
+          font-weight: 700;
+          color: $success-color;
+        }
+      }
+      
+      &.total {
+        font-size: $font-size-lg;
+        font-weight: 700;
+        padding-top: $spacing-sm;
+        
+        span:first-child {
+          color: $text-color;
+          font-size: $font-size-md;
+          font-weight: 600;
+        }
+        
+        span:last-child {
+          color: $primary-color;
+          font-size: $font-size-lg;
+          font-weight: 700;
+        }
+      }
+    }
+    
+    .ant-divider {
+      margin: $spacing-sm 0;
+      border-top: 1px dashed rgba($border-color, 0.7);
+    }
+    
+    .coupon-section {
+      margin: $spacing-md 0;
+      
+      .coupon-form-item {
+        margin-bottom: $spacing-xs;
+        
+        .ant-form-item-label {
+          font-weight: 500;
+          padding-bottom: 4px;
+          
+          label {
+            color: $text-color;
+            font-size: $font-size-sm;
+            height: auto;
+            
+            &:after {
+              display: none;
+            }
+          }
+        }
+        
+        // Sửa lỗi với Coupon input container
+        .coupon-input-container {
+          display: flex;
+          width: 100%;
+          
+          .coupon-input {
+            flex: 1;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            
+            &:hover, &:focus {
+              border-color: $primary-color;
+              box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
+            }
+          }
+          
+          .apply-button {
+            flex: 0 0 auto;
+            width: 80px !important;
+            min-width: 80px !important;
+            white-space: nowrap;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            height: 32px;
+            font-size: $font-size-sm;
+            margin-left: -1px;
+            
+            &.ant-btn-primary {
+              background-color: $secondary-color;
+              border-color: $secondary-color;
+              color: $text-color;
+              
+              &:hover {
+                background-color: darken($secondary-color, 5%);
+                border-color: darken($secondary-color, 5%);
+              }
+            }
+          }
+        }
+        
+        .active-coupon {
+          background-color: rgba($success-color, 0.08);
+          border: 1px dashed $success-color;
+          border-radius: $border-radius;
+          padding: $spacing-sm;
+          font-size: $font-size-sm;
+          margin-bottom: $spacing-sm;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          
+          .anticon {
+            color: $success-color;
+            margin-right: 6px;
+          }
+          
+          strong {
+            font-weight: 700;
+            color: darken($success-color, 10%);
+            background-color: rgba($success-color, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin: 0 3px;
+          }
+        }
+      }
+    }
+    
+    .checkout-section {
+      margin-top: $spacing-md;
+      
+      .ant-btn {
+        height: 45px;
+        font-size: $font-size-md;
+        font-weight: 600;
+        border-radius: $border-radius;
+        box-shadow: 0 2px 6px rgba($primary-color, 0.15);
+        transition: all 0.2s ease;
+        
+        &:hover:not(:disabled) {
+          background-color: darken($primary-color, 5%);
+        }
+        
+        &:disabled {
+          opacity: 0.7;
+          background-color: lighten($primary-color, 10%);
+          border-color: lighten($primary-color, 10%);
+        }
+        
+        .anticon {
+          margin-right: $spacing-xs;
+        }
+      }
+      
+      .checkout-warning {
+        background-color: rgba($warning-color, 0.1);
+        border: 1px solid rgba($warning-color, 0.3);
+        border-radius: $border-radius;
+        padding: $spacing-sm;
+        font-size: $font-size-sm;
+        margin-top: $spacing-sm;
+        color: darken($warning-color, 15%);
+        font-weight: 500;
+      }
+    }
+  }
+  
+  // Mobile optimizations
+  @media (max-width: 576px) {
+    padding: 12px;
+    
+    .card-header {
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+      
+      h2 {
+        font-size: 15px;
+        padding-left: 8px;
+        
+        &:before {
+          width: 2px;
+          height: 14px;
+        }
+      }
+    }
+    
+    .summary-content {
+      .summary-line {
+        padding: 5px 0;
+        margin-bottom: 5px;
+        
+        span:first-child,
+        span:last-child {
+          font-size: 13px;
+        }
+        
+        &.discount {
+          padding: 8px;
+          margin: 8px 0;
+        }
+        
+        &.total {
+          padding-top: 8px;
+          
+          span:first-child {
+            font-size: 15px;
+          }
+          
+          span:last-child {
+            font-size: 17px;
+          }
+        }
+      }
+      
+      .ant-divider {
+        margin: 8px 0;
+      }
+      
+      .coupon-section {
+        margin: 12px 0;
+        
+        .coupon-form-item {
+          .ant-form-item-label {
+            padding-bottom: 3px;
+            
+            label {
+              font-size: 13px;
+            }
+          }
+          
+          // Hiệu chỉnh cho mobile để tránh wrap
+          .coupon-input-container {
+            .coupon-input {
+              height: 36px;
+              font-size: 13px;
+            }
+            
+            .apply-button {
+              height: 36px;
+              font-size: 13px;
+              width: 70px !important;
+              min-width: 70px !important;
+            }
+          }
+          
+          .active-coupon {
+            padding: 8px;
+            font-size: 13px;
+          }
+        }
+      }
+      
+      .checkout-section {
+        margin-top: 12px;
+        
+        .ant-btn {
+          height: 40px;
+          font-size: 15px;
+        }
+        
+        .checkout-warning {
+          padding: 8px;
+          font-size: 12px;
+          margin-top: 8px;
+        }
+      }
+    }
+  }
+  
+  // Ultra small screens
+  @media (max-width: 360px) {
+    padding: 10px;
+    
+    .summary-content {
+      .coupon-section .coupon-form-item {
+        .coupon-input-container {
+          .coupon-input {
+            height: 32px;
+            font-size: 12px;
+          }
+          
+          .apply-button {
+            height: 32px;
+            font-size: 12px;
+            width: 65px !important;
+            min-width: 65px !important;
+          }
+        }
+      }
+    }
+  }
+}

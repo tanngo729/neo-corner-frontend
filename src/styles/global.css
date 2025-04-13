@@ -1,0 +1,60 @@
+/* src/styles/global.css */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.85);
+  background-color: #f0f2f5;
+}
+
+/* Reset box-sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.admin-namespace {
+
+}
+
+.client-namespace {
+}
+
+.admin-namespace .ant-btn,
+.admin-namespace .ant-input,
+.admin-namespace .ant-select,
+.admin-namespace .ant-checkbox,
+.admin-namespace .ant-radio,
+.admin-namespace .ant-switch,
+.admin-namespace .ant-card,
+.admin-namespace .ant-form,
+.admin-namespace .ant-menu,
+.admin-namespace .ant-dropdown,
+.admin-namespace .ant-modal,
+.admin-namespace .ant-table {
+}
+
+.client-namespace .ant-btn,
+.client-namespace .ant-input,
+.client-namespace .ant-select,
+.client-namespace .ant-checkbox,
+.client-namespace .ant-radio,
+.client-namespace .ant-switch,
+.client-namespace .ant-card,
+.client-namespace .ant-form,
+.client-namespace .ant-menu,
+.client-namespace .ant-dropdown,
+.client-namespace .ant-modal,
+.client-namespace .ant-table {
+}
+
+.client-namespace .custom-button {
+}
+
+.admin-namespace .custom-button {
+  all: revert;
+}

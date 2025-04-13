@@ -1,0 +1,450 @@
+@import '../../../styles/variables.scss';
+@import '../../../styles/mixins.scss';
+
+// Wrapper bao quanh thẻ sản phẩm
+.product-card-wrapper {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+
+  // Thẻ sản phẩm chính
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    transition: all $transition-speed ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    
+    // Hiệu ứng hover cho thẻ
+    &:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      transform: translateY(-3px);
+      
+      // Hiển thị nút hành động và phóng to ảnh
+      .product-card-image-container {
+        .product-actions {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        
+        .product-image {
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+
+  // Khung chứa hình ảnh sản phẩm
+  .product-card-image-container {
+    position: relative;
+    overflow: hidden;
+    font-size: 0; // Loại bỏ khoảng trắng do inline-block
+    line-height: 0; // Loại bỏ khoảng trắng dưới ảnh
+    
+    // Hình ảnh sản phẩm
+    .product-image {
+      width: 100%;
+      height: 100%; /* Đảm bảo ảnh lấp đầy container */
+      object-fit: cover;
+      transition: transform $transition-speed ease;
+      background-color: #f5f5f5; // Thêm màu nền khi ảnh đang tải
+      display: block; // Loại bỏ khoảng trắng dưới ảnh
+    }
+
+    // Lớp overlay khi hết hàng
+    .out-of-stock-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 3;
+      
+      .anticon {
+        font-size: 30px;
+        margin-bottom: 8px;
+      }
+    }
+
+    // Nhãn trạng thái (giảm giá, mới, hết hàng)
+    .product-badges {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      z-index: 2;
+
+      // Nhãn giảm giá
+      .discount-badge {
+        background-color: $error-color;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      // Nhãn sản phẩm mới
+      .new-badge {
+        background-color: $primary-color;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      
+      // Nhãn hết hàng
+      .out-of-stock-badge {
+        background-color: #555;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+    }
+
+    // Các nút hành động
+    .product-actions {
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all $transition-speed ease;
+      z-index: 4; // Tăng z-index để hiển thị trên out-of-stock-overlay
+      padding: 0 10px; // Thêm padding để nút không quá sát mép
+
+      // Nút hành động chung
+      .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        padding: 0;
+        border-radius: 50%;
+        background-color: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: all $transition-speed ease;
+
+        // Đảm bảo icon được căn giữa
+        .anticon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px; // Tăng kích thước icon
+        }
+
+        // Hiệu ứng phóng to khi hover
+        &:hover {
+          transform: scale(1.1);
+        }
+
+        // Hiệu ứng khi active
+        &:active {
+          transform: scale(0.95);
+        }
+        
+        // Kiểu nút disabled
+        &.disabled, &:disabled {
+          background-color: #f5f5f5 !important;
+          color: #bbb !important;
+          cursor: not-allowed;
+          
+          &:hover {
+            transform: none;
+          }
+        }
+      }
+
+      // Nút thêm vào giỏ hàng
+      .cart-btn {
+        background-color: $primary-color;
+        color: white;
+        border: none;
+        
+        &:hover {
+          background-color: darken($primary-color, 10%);
+        }
+        
+        &.disabled {
+          background-color: #ccc !important;
+          color: #888 !important;
+        }
+      }
+
+      // Nút yêu thích
+      .wishlist-btn {
+        background-color: white !important;
+        color: black !important;
+        border: 1px solid $border-color !important;
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.808) !important;
+          color: black!important;
+        }
+        
+        &.is-wishlisted {
+          .anticon-heart-filled {
+            color: black;
+          }
+        }
+      }
+      
+      // Nút xem chi tiết
+      .view-btn {
+        background-color: white !important;
+        color: black !important;
+        border: 1px solid $border-color !important;
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.808) !important;
+          color: black!important;
+        }
+      }
+    }
+  }
+
+  // Phần nội dung thẻ sản phẩm
+  .product-card-content {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+
+    // Danh mục sản phẩm
+    .product-category {
+      font-size: 12px;
+      color: $text-light;
+      margin-bottom: 5px;
+      transition: color $transition-speed;
+
+      &:hover {
+        color: $primary-color;
+      }
+    }
+
+    // Tiêu đề sản phẩm
+    .product-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-height: 44px;
+      line-height: 1.4;
+      transition: color $transition-speed;
+      color: $text-color;
+
+      &:hover {
+        color: $primary-color;
+      }
+    }
+
+    // Đánh giá sản phẩm
+    .product-rating {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+
+      // Sao đánh giá
+      .ant-rate {
+        font-size: 14px;
+        color: $warning-color;
+        
+        .ant-rate-star {
+          margin-right: 2px; // Giảm khoảng cách giữa các ngôi sao
+        }
+      }
+
+      // Số lượng đánh giá
+      .rating-count {
+        margin-left: 8px;
+        font-size: 12px;
+        color: $text-light;
+      }
+    }
+
+    // Giá sản phẩm
+    .product-price {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: auto;
+      margin-bottom: 10px;
+
+      // Giá hiện tại
+      .current-price {
+        font-size: 18px;
+        font-weight: 700;
+        color: $primary-color;
+      }
+
+      // Giá gốc (đã giảm)
+      .original-price {
+        font-size: 14px;
+        color: $text-light;
+        text-decoration: line-through;
+      }
+    }
+    
+    // Hiển thị trạng thái tồn kho
+    .product-stock-status {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      
+      .anticon {
+        margin-right: 5px;
+      }
+      
+      &.out-of-stock {
+        color: $error-color;
+      }
+    }
+
+    // Nút thêm vào giỏ (cho mobile)
+    .mobile-cart-btn {
+      display: none; // Mặc định ẩn
+    }
+    
+    // Nhóm nút mobile - thêm mới
+    .mobile-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 0;
+      
+      .mobile-cart-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 32px;
+        border-radius: 4px;
+        font-size: 13px;
+        
+        .anticon {
+          font-size: 14px;
+          margin-right: 5px;
+        }
+        
+        &:disabled {
+          background-color: #f5f5f5 !important;
+          color: rgba(0, 0, 0, 0.25) !important;
+          border-color: #d9d9d9 !important;
+        }
+      }
+      
+      .mobile-wishlist-btn {
+        width: 36px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+      }
+    }
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 576px) {
+  .product-card-wrapper {
+    .product-card {
+      border-radius: $border-radius;
+    }
+    
+    .product-card-image-container {
+      // Chiều cao đã được xử lý trong component
+      
+      .product-badges {
+        .discount-badge,
+        .new-badge,
+        .out-of-stock-badge {
+          font-size: 10px;
+          padding: 1px 6px;
+          border-radius: 8px;
+        }
+      }
+      
+      .out-of-stock-overlay {
+        font-size: 14px;
+        
+        .anticon {
+          font-size: 24px;
+          margin-bottom: 4px;
+        }
+      }
+    }
+    
+    .product-card-content {
+      padding: 8px 10px;
+      
+      .product-title {
+        font-size: 14px;
+        min-height: auto;
+        margin-bottom: 4px;
+        font-weight: 500;
+        -webkit-line-clamp: 2;
+        line-height: 1.35;
+      }
+      
+      .product-category {
+        font-size: 11px;
+        margin-bottom: 2px;
+      }
+      
+      .product-rating {
+        margin-bottom: 4px;
+      }
+      
+      .product-price {
+        margin-bottom: 8px;
+        margin-top: 4px;
+        
+        .current-price {
+          font-size: 16px;
+          font-weight: 600;
+        }
+        
+        .original-price {
+          font-size: 12px;
+        }
+      }
+      
+      .product-stock-status {
+        font-size: 12px;
+        margin-bottom: 8px;
+      }
+    }
+  }
+}

@@ -1,0 +1,197 @@
+// src/components/common/buttoncustom/CustomButton.scss
+
+// Biến màu sắc - cập nhật theo màu Jollibee chính thức
+$primary-color: #e31836; // Đỏ Jollibee
+$primary-hover: #e31836c4; // Đỏ đậm hơn
+$secondary-color: #ffc522; // Vàng Jollibee
+$secondary-hover: #e6b31f; // Vàng đậm hơn
+$success-color: #28A745; // Xanh lá
+$success-hover: #218838; // Xanh lá đậm hơn
+$warning-color: #FFC107; // Vàng cam 
+$warning-hover: #E0A800; // Vàng cam đậm hơn
+$danger-color: #DC3545; // Đỏ lỗi
+$danger-hover: #C82333; // Đỏ đậm hơn
+$info-color: #2980B9; // Xanh lam
+$info-hover: #1F6694; // Xanh lam đậm hơn
+
+$white: #FFFFFF;
+$dark: #333333;
+$border-radius: 4px;
+$transition: all 0.3s;
+
+// Khoảng cách và kích thước
+$padding-small: 0 14px;
+$padding-middle: 0 20px;
+$padding-large: 0 24px;
+
+$height-small: 32px;
+$height-middle: 40px;
+$height-large: 48px;
+
+$font-size-small: 14px;
+$font-size-middle: 16px;
+$font-size-large: 18px;
+
+// Mixins
+@mixin button-variant($bg-color, $text-color, $hover-color) {
+  background-color: $bg-color;
+  border-color: $bg-color;
+  color: $text-color;
+
+  &:hover, &:focus {
+    background-color: $hover-color;
+    border-color: $hover-color;
+    color: $text-color;
+  }
+
+  &:active {
+    background-color: darken($hover-color, 5%);
+    border-color: darken($hover-color, 5%);
+  }
+}
+
+@mixin button-outline-variant($color, $hover-bg-color, $hover-text-color) {
+  background-color: transparent;
+  border-color: $color;
+  color: $color;
+
+  &:hover, &:focus {
+    background-color: $hover-bg-color;
+    border-color: $hover-bg-color;
+    color: $hover-text-color;
+  }
+
+  &:active {
+    background-color: darken($hover-bg-color, 5%);
+    border-color: darken($hover-bg-color, 5%);
+  }
+}
+
+// Kiểu cơ bản cho tất cả các nút
+// Chỉ ảnh hưởng trong client-namespace
+.client-namespace {
+  .custom-button {
+    font-weight: 500;
+    border-radius: $border-radius;
+    transition: $transition;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.015);
+    outline: none;
+    
+    &:hover, &:focus {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &.ant-btn-lg {
+      height: $height-large;
+      padding: $padding-large;
+      font-size: $font-size-large;
+    }
+
+    &.ant-btn-sm {
+      height: $height-small;
+      padding: $padding-small;
+      font-size: $font-size-small;
+    }
+
+    &.custom-button-block {
+      width: 100%;
+      display: flex;
+    }
+
+    // Các biến thể màu sắc
+    &.custom-button-primary {
+      @include button-variant($primary-color, $white, $primary-hover);
+    }
+
+    &.custom-button-secondary {
+      @include button-variant($secondary-color, $dark, $secondary-hover);
+    }
+
+    &.custom-button-success {
+      @include button-variant($success-color, $white, $success-hover);
+    }
+
+    &.custom-button-warning {
+      @include button-variant($warning-color, $dark, $warning-hover);
+    }
+
+    &.custom-button-danger {
+      @include button-variant($danger-color, $white, $danger-hover);
+    }
+
+    &.custom-button-info {
+      @include button-variant($info-color, $white, $info-hover);
+    }
+
+    // Các biến thể outline
+    &.custom-button-outline-primary {
+      @include button-outline-variant($primary-color, $primary-color, $white);
+    }
+
+    &.custom-button-outline-secondary {
+      @include button-outline-variant($secondary-color, $secondary-color, $dark);
+    }
+
+    &.custom-button-outline-success {
+      @include button-outline-variant($success-color, $success-color, $white);
+    }
+
+    &.custom-button-outline-warning {
+      @include button-outline-variant($warning-color, $warning-color, $dark);
+    }
+
+    &.custom-button-outline-danger {
+      @include button-outline-variant($danger-color, $danger-color, $white);
+    }
+
+    &.custom-button-outline-info {
+      @include button-outline-variant($info-color, $info-color, $white);
+    }
+
+    // Kiểu link và text
+    &.custom-button-link {
+      background-color: transparent;
+      border-color: transparent;
+      color: $primary-color;
+      box-shadow: none;
+
+      &:hover, &:focus {
+        color: $primary-hover;
+        background-color: transparent;
+        border-color: transparent;
+        text-decoration: underline;
+        box-shadow: none;
+      }
+    }
+
+    &.custom-button-text {
+      background-color: transparent;
+      border-color: transparent;
+      color: $dark;
+      box-shadow: none;
+
+      &:hover, &:focus {
+        background-color: rgba(0, 0, 0, 0.05);
+        border-color: transparent;
+        box-shadow: none;
+      }
+    }
+
+    // Trạng thái disabled
+    &.ant-btn-disabled, &.ant-btn-disabled:hover, &.ant-btn-disabled:focus, &.ant-btn-disabled:active {
+      background-color: #f5f5f5;
+      border-color: #d9d9d9;
+      color: rgba(0, 0, 0, 0.25);
+      box-shadow: none;
+      transform: none;
+    }
+  }
+}

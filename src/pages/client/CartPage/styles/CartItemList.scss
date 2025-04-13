@@ -1,0 +1,149 @@
+@import "../../../../styles/variables.scss";
+@import "../../../../styles/mixins.scss";
+
+.cart-item-list {
+  padding: $spacing-sm 0;
+  position: relative;
+  min-height: 120px;
+  margin: 0;
+  
+  // Tối ưu hóa cho giỏ hàng dài
+  max-height: 550px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba($bg-light, 0.3);
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba($primary-color, 0.15);
+    border-radius: 4px;
+    
+    &:hover {
+      background-color: rgba($primary-color, 0.25);
+    }
+  }
+  
+  // Phần tử danh sách
+  .cart-list-item {
+    padding: 0;
+    margin: 0 0 $spacing-sm 0;
+    position: relative;
+    border-radius: $border-radius;
+    
+    // Skeleton loading với các cải tiến
+    .ant-skeleton {
+      display: block;
+      width: 100%;
+      padding: $spacing-sm;
+      border-radius: $border-radius-lg;
+      background-color: $bg-color;
+      border: 1px solid rgba($border-color, 0.15);
+      box-shadow: 0 1px 3px rgba($shadow-color, 0.03);
+      overflow: hidden;
+      
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg, 
+          transparent, 
+          rgba(255, 255, 255, 0.4), 
+          transparent
+        );
+        animation: skeletonShimmer 1.8s infinite;
+      }
+      
+      @keyframes skeletonShimmer {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+    }
+  }
+  
+  // Phần empty state trong list
+  .empty-placeholder {
+    padding: $spacing-md;
+    text-align: center;
+    color: $text-light;
+    font-style: italic;
+    background-color: rgba($bg-light, 0.3);
+    border-radius: $border-radius;
+    margin: $spacing-md 0;
+  }
+  
+  // Tối ưu cho mobile
+  @media (max-width: 576px) {
+    padding: 5px 0;
+    max-height: 450px; // Giảm chiều cao tối đa trên mobile
+    
+    .cart-list-item {
+      margin: 0 0 8px 0;
+    }
+    
+    // Hiệu chỉnh skeleton loading cho mobile
+    .ant-skeleton {
+      padding: 10px !important;
+      
+      .ant-skeleton-header {
+        padding-right: 10px !important;
+        
+        .ant-skeleton-avatar {
+          width: 50px !important;
+          height: 50px !important;
+        }
+      }
+      
+      .ant-skeleton-content {
+        padding-right: 10px !important;
+        
+        .ant-skeleton-title {
+          margin: 0 !important;
+          height: 14px !important;
+        }
+        
+        .ant-skeleton-paragraph {
+          margin-top: 6px !important;
+          
+          li {
+            height: 10px !important;
+          }
+        }
+      }
+    }
+    
+    // Tùy chỉnh cho màn hình rất nhỏ
+    @media (max-width: 374px) {
+      max-height: 400px;
+      
+      .ant-skeleton .ant-skeleton-header .ant-skeleton-avatar {
+        width: 45px !important;
+        height: 45px !important;
+      }
+    }
+  }
+  
+  // Đảm bảo tính tương thích với Ant Design List
+  .ant-list-items {
+    padding: 0;
+  }
+  
+  // Thêm dấu phân cách giữa các mục trong danh sách
+  .ant-list-item {
+    border-bottom: none !important;
+  }
+}

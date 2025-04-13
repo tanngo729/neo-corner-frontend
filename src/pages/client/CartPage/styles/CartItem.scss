@@ -1,0 +1,365 @@
+@import "../../../../styles/variables.scss";
+@import "../../../../styles/mixins.scss";
+
+.cart-item {
+  width: 100%;
+  padding: $spacing-sm;
+  margin-bottom: $spacing-xs;
+  border-radius: $border-radius-lg;
+  transition: background-color 0.2s ease;
+  position: relative;
+  background-color: $bg-color;
+  border: 1px solid rgba($border-color, 0.3);
+  
+  &:hover {
+    background-color: rgba($primary-light, 0.3);
+    
+    .product-name {
+      color: $primary-color;
+    }
+    
+    .remove-button {
+      opacity: 1;
+    }
+  }
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  // Khi sản phẩm không khả dụng
+  &.unavailable {
+    opacity: 0.75;
+    background-color: rgba($bg-light, 0.7);
+    border: 1px dashed rgba($error-color, 0.3);
+    
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba($error-color, 0.03),
+        rgba($error-color, 0.03) 10px,
+        rgba($error-color, 0.05) 10px,
+        rgba($error-color, 0.05) 20px
+      );
+      border-radius: $border-radius-lg;
+      pointer-events: none;
+    }
+  }
+  
+  .product-image {
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    border-radius: $border-radius;
+    border: 1px solid $border-color;
+    box-shadow: 0 2px 4px $shadow-color;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    
+    @include respond-below(md) {
+      width: 65px;
+      height: 65px;
+    }
+    
+    @include respond-below(sm) {
+      width: 55px;
+      height: 55px;
+    }
+  }
+  
+  .product-info {
+    padding-right: $spacing-sm;
+    
+    .product-name {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: $text-color;
+      text-decoration: none;
+      font-size: $font-size-md;
+      transition: color 0.2s ease;
+      position: relative;
+      
+      &:hover {
+        color: $primary-color;
+      }
+      
+      @include respond-below(md) {
+        font-size: $font-size-sm;
+        @include truncate(1);
+      }
+      
+      @include respond-below(sm) {
+        font-size: $font-size-xs;
+      }
+    }
+    
+    .product-price {
+      color: $primary-color;
+      font-size: $font-size-md;
+      font-weight: 700;
+      margin-bottom: 4px;
+      
+      @include respond-below(md) {
+        font-size: $font-size-sm;
+      }
+      
+      @include respond-below(sm) {
+        font-size: $font-size-xs;
+      }
+    }
+    
+    .product-unavailable,
+    .product-out-of-stock,
+    .product-low-stock {
+      margin-top: 4px;
+      font-size: $font-size-xs;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: $border-radius;
+      display: inline-block;
+    }
+    
+    .product-unavailable,
+    .product-out-of-stock {
+      color: white;
+      background-color: $error-color;
+      box-shadow: 0 2px 4px rgba($error-color, 0.2);
+    }
+    
+    .product-low-stock {
+      color: darken($warning-color, 15%);
+      background-color: rgba($warning-color, 0.15);
+      border: 1px solid rgba($warning-color, 0.3);
+    }
+  }
+  
+  .product-quantity {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    .ant-input-number {
+      width: 90px;
+      border-radius: $border-radius;
+      box-shadow: 0 1px 3px rgba($shadow-color, 0.05);
+      transition: border-color 0.2s ease;
+      height: 36px;
+      
+      &:hover, &:focus {
+        border-color: $primary-color;
+      }
+      
+      .ant-input-number-handler-wrap {
+        background-color: rgba($bg-light, 0.5);
+        border-left: 1px solid rgba($border-color, 0.5);
+        
+        .ant-input-number-handler:hover .ant-input-number-handler-up-inner,
+        .ant-input-number-handler:hover .ant-input-number-handler-down-inner {
+          color: $primary-color;
+        }
+      }
+      
+      .ant-input-number-input {
+        text-align: center;
+        font-size: $font-size-sm;
+        font-weight: 600;
+        height: 34px;
+        padding: 0 $spacing-xs;
+        color: $text-color;
+      }
+      
+      @include respond-below(md) {
+        width: 70px;
+        height: 34px;
+      }
+      
+      @include respond-below(sm) {
+        width: 60px;
+        height: 32px;
+        
+        .ant-input-number-input {
+          height: 30px;
+          font-size: $font-size-xs;
+        }
+      }
+    }
+  }
+  
+  .product-actions {
+    @include flex(column, center, flex-end);
+    
+    .product-subtotal {
+      font-weight: 700;
+      color: $primary-color;
+      margin-bottom: 8px;
+      font-size: $font-size-md;
+      text-align: right;
+      
+      @include respond-below(md) {
+        font-size: $font-size-sm;
+      }
+      
+      @include respond-below(sm) {
+        font-size: $font-size-xs;
+      }
+    }
+    
+    .remove-button {
+      padding: 5px;
+      height: 28px;
+      width: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+      opacity: 0.6;
+      background-color: transparent;
+      border: 1px solid rgba($error-color, 0.3);
+      
+      &:hover {
+        color: white;
+        background-color: $error-color;
+        border-color: $error-color;
+      }
+      
+      .anticon {
+        font-size: $font-size-sm;
+      }
+      
+      @include respond-below(sm) {
+        height: 24px;
+        width: 24px;
+        padding: 3px;
+        
+        .anticon {
+          font-size: $font-size-xs;
+        }
+      }
+    }
+  }
+  
+  // Thêm animation cho item mới
+  &.new-item {
+    animation: newItemFade 0.3s ease;
+    
+    @keyframes newItemFade {
+      0% {
+        opacity: 0;
+        transform: translateY(-4px);
+        background-color: rgba($primary-color, 0.08);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+        background-color: $bg-color;
+      }
+    }
+  }
+  
+  // Animation khi xóa item - đơn giản hóa
+  &.removing {
+    animation: removeItem 0.3s ease forwards;
+    overflow: hidden;
+    
+    @keyframes removeItem {
+      0% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        max-height: 0;
+        margin: 0;
+        padding: 0;
+      }
+    }
+  }
+  
+  // Mobile layout
+  &.mobile {
+    padding: 10px;
+    
+    // Hàng đầu tiên với ảnh và thông tin sản phẩm
+    .item-row-1 {
+      margin-bottom: 8px;
+      
+      .product-image {
+        width: 50px;
+        height: 50px;
+      }
+      
+      .product-info {
+        padding-right: 0;
+        
+        .product-name {
+          font-size: 14px;
+          margin-bottom: 2px;
+          font-weight: 500;
+        }
+        
+        .product-price {
+          font-size: 14px;
+          font-weight: 600;
+        }
+        
+        .product-unavailable,
+        .product-out-of-stock,
+        .product-low-stock {
+          font-size: 10px;
+          padding: 1px 4px;
+          margin-top: 2px;
+        }
+      }
+    }
+    
+    // Hàng thứ hai với số lượng và tổng cộng
+    .item-row-2 {
+      .product-quantity {
+        justify-content: flex-start;
+        
+        .ant-input-number {
+          width: 75px;
+          height: 30px;
+          
+          .ant-input-number-input {
+            height: 28px;
+            font-size: 12px;
+          }
+        }
+      }
+      
+      .product-actions {
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        
+        .product-subtotal {
+          margin-bottom: 0;
+          margin-right: 8px;
+          font-size: 14px;
+        }
+        
+        .remove-button {
+          height: 24px;
+          width: 24px;
+          
+          .anticon {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+}

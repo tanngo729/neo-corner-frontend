@@ -1,0 +1,67 @@
+@import "../../../../styles/variables.scss";
+@import "../../../../styles/mixins.scss";
+
+.verify-success-page-container {
+  min-height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: $spacing-lg 0;
+  background-color: $bg-light;
+
+  .verify-success-box {
+    width: 100%;
+    max-width: 600px;
+    padding: $spacing-lg;
+    background-color: $bg-color;
+    border-radius: $border-radius;
+    box-shadow: 0 2px 8px $shadow-color;
+    text-align: center;
+    
+    .success-icon {
+      color: $success-color;
+      font-size: 72px;
+    }
+    
+    .ant-result-title {
+      font-size: $font-size-xxl;
+      color: $text-color;
+      margin-top: $spacing-md;
+    }
+    
+    .success-message {
+      margin: $spacing-md 0;
+      
+      p {
+        font-size: $font-size-md;
+        margin-bottom: $spacing-sm;
+      }
+    }
+    
+    .action-button {
+      margin: $spacing-md $spacing-sm;
+      min-width: 160px;
+    }
+  }
+
+  @include respond-below(sm) {
+    padding: $spacing-md $spacing-sm;
+    
+    .verify-success-box {
+      padding: $spacing-md;
+      
+      .success-icon {
+        font-size: 56px;
+      }
+      
+      .ant-result-title {
+        font-size: $font-size-xl;
+      }
+      
+      .action-button {
+        margin: $spacing-sm 0;
+        width: 100%;
+      }
+    }
+  }
+}

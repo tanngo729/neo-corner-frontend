@@ -1,0 +1,149 @@
+.shipping-method-selector {
+  margin-bottom: 30px;
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #333;
+  }
+
+  .shipping-methods-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .ant-radio-wrapper {
+      margin-right: 0;
+      width: 100%;
+    }
+  }
+
+  .shipping-method-card {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid #e8e8e8;
+    margin-bottom: 0;
+
+    &:hover {
+      border-color: #1890ff;
+    }
+
+    &.selected {
+      border-color: #1890ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+      background-color: #f0f8ff;
+    }
+
+    .ant-card-body {
+      padding: 16px 20px;
+    }
+
+    .ant-radio {
+      top: 18px;
+    }
+  }
+
+  .shipping-method-content {
+    display: flex;
+    align-items: center;
+    margin-left: 8px;
+  }
+
+  .shipping-logo {
+    margin-right: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+
+    .shipping-icon {
+      font-size: 24px;
+      color: #1890ff;
+    }
+  }
+
+  .shipping-info {
+    flex: 1;
+  }
+
+  .shipping-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .shipping-detail {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    
+    .delivery-time {
+      color: #666;
+      font-size: 13px;
+      
+      .anticon {
+        margin-right: 4px;
+      }
+    }
+    
+    .shipping-fee {
+      font-weight: 500;
+      color: #1890ff;
+    }
+  }
+
+  .shipping-description {
+    color: #666;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .free-shipping-note {
+    font-size: 12px;
+    color: #52c41a;
+    margin-top: 4px;
+  }
+
+  .shipping-error {
+    color: #f5222d;
+    margin-top: 8px;
+  }
+}
+
+// Mobile styles
+@media (max-width: 576px) {
+  .shipping-method-selector {
+    .shipping-method-card {
+      .ant-card-body {
+        padding: 12px 16px;
+      }
+    }
+    
+    .shipping-logo {
+      margin-right: 12px;
+      min-width: 32px;
+      
+      .shipping-icon {
+        font-size: 20px;
+      }
+    }
+    
+    .shipping-name {
+      font-size: 14px;
+    }
+    
+    .shipping-detail {
+      flex-direction: column;
+      
+      .delivery-time {
+        margin-bottom: 2px;
+      }
+    }
+    
+    .shipping-description,
+    .free-shipping-note {
+      font-size: 12px;
+    }
+  }
+}

@@ -1,0 +1,302 @@
+@import "../../../../styles/variables.scss";
+@import "../../../../styles/mixins.scss";
+
+.products-page {
+  padding: $spacing-lg 0;
+  width: 100%;
+  overflow-x: hidden;
+  
+  .container {
+    width: 100%;
+    // max-width: $container-width;
+    margin: 0 auto; 
+    padding: 0 15px;
+  }
+  
+  .products-breadcrumb {
+    margin-bottom: $spacing-md;
+    
+    .ant-breadcrumb-link {
+      color: $text-light;
+      transition: color $transition-speed;
+      
+      &:hover {
+        color: $primary-color;
+      }
+    }
+  }
+  
+  // Page header
+  .page-header {
+    margin-bottom: $spacing-lg;
+    
+    h2 {
+      position: relative;
+      font-size: $font-size-xl;
+      margin-bottom: $spacing-xs;
+      color: $text-color;
+      font-weight: 600;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(to right, $primary-color, $primary-dark);
+        border-radius: 3px;
+      }
+      
+      // Style for parent category indicator
+      .parent-category {
+        font-size: $font-size-lg;
+        font-weight: normal;
+        color: $text-light;
+        margin-left: $spacing-xs;
+      }
+    }
+    
+    .category-description {
+      color: $text-light;
+      max-width: 800px;
+      margin-top: $spacing-md;
+    }
+    
+    // Subcategories display
+    .subcategories-container {
+      margin: $spacing-md 0;
+      background-color: #f9f9f9;
+      padding: $spacing-sm $spacing-md;
+      border-radius: $border-radius;
+      border: 1px solid #f0f0f0;
+      
+      .subcategories-title {
+        font-size: $font-size-sm;
+        font-weight: 600;
+        margin-bottom: $spacing-xs;
+        color: $text-color;
+      }
+      
+      .subcategories-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-xs;
+        
+        .subcategory-tag {
+          cursor: pointer;
+          transition: all 0.2s;
+          padding: 4px 12px;
+          border-radius: 50px;
+          
+          &:hover {
+            color: $primary-color;
+            border-color: $primary-color;
+          }
+          
+          &.active {
+            background-color: $primary-color;
+            color: #fff;
+            border-color: $primary-color;
+          }
+        }
+      }
+    }
+  }
+  
+  // Mobile filter toggle button
+  .mobile-filter-toggle {
+    display: none;
+    margin-bottom: $spacing-md;
+    
+    @media (max-width: 992px) {
+      display: flex;
+      
+      .ant-btn {
+        width: 100%;
+        max-width: 200px;
+        display: flex;
+        align-items: center;
+        
+        .anticon {
+          margin-right: $spacing-xs;
+        }
+      }
+    }
+  }
+  
+  // Products header (sort + count)
+  .products-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-md;
+    padding-bottom: $spacing-sm;
+    border-bottom: 1px solid $border-color;
+    
+    .result-count {
+      color: $text-light;
+      font-size: $font-size-sm;
+    }
+    
+    .product-sort {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      align-items: center;
+      
+      .sort-label {
+        margin-right: $spacing-xs;
+        color: $text-light;
+        font-size: $font-size-sm;
+      }
+      
+      .sort-select {
+        min-width: 180px;
+      }
+      
+      @media (max-width: 576px) {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: $spacing-sm;
+    }
+  }
+  
+  // Products container
+  .products-container {
+    min-height: 300px;
+    margin-bottom: $spacing-lg;
+    width: 100%;
+  }
+  
+  // Layout chính - Điều chỉnh margin và padding
+  .ant-row {
+    margin-left: -10px !important; 
+    margin-right: -10px !important;
+    
+    // Điều chỉnh sidebar width
+    > .ant-col-md-6 {
+      @media (min-width: 992px) {
+        flex: 0 0 20%; // Thu nhỏ sidebar từ 6/24 (25%) xuống 20%
+        max-width: 20%;
+      }
+    }
+    
+    // Điều chỉnh content width
+    > .ant-col-md-18 {
+      @media (min-width: 992px) {
+        flex: 0 0 80%; // Tăng content area từ 18/24 (75%) lên 80%
+        max-width: 80%;
+      }
+    }
+    
+    .ant-col {
+      padding-left: 10px !important;
+      padding-right: 10px !important;
+    }
+  }
+  
+  // Loading container
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  // Pagination
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: $spacing-lg;
+    padding-top: $spacing-md;
+    border-top: 1px solid $border-color;
+  }
+  
+  // Tùy chỉnh Product Card trong trang này
+  .product-card-wrapper {
+    width: 100%;
+    height: 100%;
+    
+    .product-card {
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+      
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+      }
+    }
+  }
+  
+  // Kiểm soát hiển thị filter trên mobile - ĐƯA LÊN NẰM NGOÀI MEDIA QUERY
+  .filter-column {
+    &.filter-mobile-hidden {
+      @media (max-width: 992px) {
+        display: none !important; // Thêm !important để ghi đè lớp ant-col
+      }
+    }
+    
+    &.filter-mobile-visible {
+      @media (max-width: 992px) {
+        display: block !important; // Thêm !important để ghi đè lớp ant-col
+        margin-bottom: $spacing-md;
+      }
+    }
+  }
+  
+  // Responsive adjustments
+  @media (max-width: 992px) {
+    .ant-row {
+      > .ant-col-md-6, > .ant-col-md-18 {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .ant-card {
+      border-radius: $border-radius;
+    }
+    
+    .product-filter {
+      margin-bottom: $spacing-md;
+    }
+    
+    .container {
+      padding: 0 10px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: $spacing-md 0;
+    
+    .container {
+      padding: 0 8px;
+    }
+    
+    .products-container {
+      margin-left: -5px;
+      margin-right: -5px;
+      width: calc(100% + 10px);
+    }
+    
+    .subcategories-container {
+      .subcategories-list {
+        flex-wrap: wrap;
+        
+        .subcategory-tag {
+          margin-bottom: 5px;
+        }
+      }
+    }
+  }
+}

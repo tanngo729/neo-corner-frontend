@@ -1,0 +1,140 @@
+// src/layouts/ClientLayout/styles/MobileSearch.scss
+@import "../../../styles/mixins.scss";
+@import "../../../styles/variables.scss";
+
+// Custom Search Drawer
+.custom-search-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-index-modal;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+  
+  &.visible {
+    height: auto;
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+  }
+  
+  .custom-search-drawer-content {
+    background-color: $primary-color; // Nền đỏ Jollibee
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-height: 150px; // Tăng chiều cao để vừa SearchInput
+    border-radius: 0 0 $border-radius $border-radius;
+    overflow: hidden;
+    
+    // Drawer Header
+    .search-drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: $spacing-sm $spacing-md;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      
+      span {
+        font-weight: 500;
+        color: white; // Chữ trắng trên nền đỏ
+      }
+      
+      .drawer-close {
+        padding: 0;
+        color: white;
+        
+        &:hover {
+          color: $secondary-color;
+        }
+        
+        &.custom-button {
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+        }
+      }
+    }
+    
+    // Drawer Body
+    .search-drawer-body {
+      padding: $spacing-md;
+      
+      .mobile-search-input {
+        width: 100%;
+        
+        // Override ant-input styles
+        .ant-input-search-button {
+          background-color: $secondary-color;
+          border-color: $secondary-color;
+          color: $text-color;
+          
+          &:hover, &:focus {
+            background-color: darken($secondary-color, 5%);
+            border-color: darken($secondary-color, 5%);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Tablet search bar
+.tablet-search {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background-color: $primary-color; // Nền đỏ Jollibee
+  padding: $spacing-md;
+  box-shadow: 0 2px 8px $shadow-color;
+  z-index: $z-index-fixed;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+  
+  &.visible {
+    transform: translateY(0);
+  }
+  
+  .container {
+    @include container;
+  }
+  
+  .tablet-search-input {
+    width: 100%;
+    
+    // Override ant-input styles
+    .ant-input-search-button {
+      background-color: $secondary-color;
+      border-color: $secondary-color;
+      color: $text-color;
+      
+      &:hover, &:focus {
+        background-color: darken($secondary-color, 5%);
+        border-color: darken($secondary-color, 5%);
+      }
+    }
+  }
+  
+  // Show only on tablets, not on phones
+  @include respond-to(sm) {
+    @include respond-below(md) {
+      display: block;
+    }
+  }
+}

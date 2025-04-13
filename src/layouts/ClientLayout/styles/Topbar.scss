@@ -1,0 +1,119 @@
+// src/layouts/ClientLayout/styles/Topbar.scss - Simplified with fixed position
+@import "../../../styles/mixins.scss";
+@import "../../../styles/variables.scss";
+
+// Định nghĩa chiều cao topbar
+$topbar-height: 40px;
+
+// Topbar styles - luôn fixed
+.topbar {
+  background-color: $primary-color;
+  color: #fff;
+  font-size: $font-size-xs;
+  width: 100%;
+  position: fixed; // Luôn fixed vị trí
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1010; // Cao hơn header
+  height: $topbar-height;
+  display: flex;
+  align-items: center;
+  
+  @include respond-below(sm) {
+    display: none; // Ẩn trên mobile
+  }
+  
+  .topbar-container {
+    @include container;
+    @include flex(row, space-between, center);
+    padding: 0 15px;
+    width: 100%;
+    max-width: $container-width;
+    margin: 0 auto;
+  }
+  
+  .topbar-left {
+    @include flex(row, flex-start, center);
+    
+    span {
+      margin-right: $spacing-lg;
+      white-space: nowrap;
+      
+      @include respond-below(md) {
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+    
+    .topbar-icon {
+      margin-right: $spacing-xs;
+      color: $secondary-color;
+    }
+    
+    // Hide email on tablets
+    .hidden-xs {
+      @include respond-below(md) {
+        display: none;
+      }
+    }
+  }
+  
+  .topbar-right {
+    @include flex(row, flex-end, center);
+    gap: $spacing-lg;
+    
+    // Tùy chỉnh cho CustomButton với type="text"
+    .custom-button.custom-button-text {
+      color: #fff !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      height: auto;
+      padding: 0;
+      font-size: $font-size-xs;
+      line-height: 1.5;
+      position: relative;
+      white-space: nowrap;
+      
+      &:hover, &:focus {
+        color: $secondary-color !important;
+        background: transparent !important;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+      
+      .anticon {
+        margin-right: $spacing-xs;
+        font-size: 14px;
+      }
+    }
+    
+    // Bỏ hiệu ứng gạch chân
+    .topbar-btn {
+      position: relative;
+      white-space: nowrap;
+      
+      // Xóa hiệu ứng hover gạch chân
+      &:after {
+        display: none;
+      }
+    }
+    
+    a {
+      text-decoration: none;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      
+      &:hover {
+        text-decoration: none;
+      }
+    }
+    
+    @include respond-below(md) {
+      gap: $spacing-md;
+    }
+  }
+}

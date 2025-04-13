@@ -1,0 +1,179 @@
+.payment-result-page {
+  padding: 30px 0;
+  min-height: 50vh;
+  
+  &.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    
+    p {
+      margin-top: 16px;
+      color: #666;
+    }
+  }
+  
+  .result-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 16px;
+    
+    @media (max-width: 768px) {
+      padding: 0 12px;
+    }
+  }
+  
+  .result-content {
+    margin-bottom: 24px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    
+    .ant-result {
+      padding: 32px 24px;
+      
+      @media (max-width: 768px) {
+        padding: 24px 16px;
+      }
+      
+      .ant-result-icon {
+        margin-bottom: 12px;
+      }
+      
+      .ant-result-title {
+        font-size: 22px;
+        
+        @media (max-width: 576px) {
+          font-size: 18px;
+        }
+      }
+      
+      .ant-result-subtitle {
+        color: #666;
+        font-size: 15px;
+        
+        @media (max-width: 576px) {
+          font-size: 14px;
+        }
+      }
+      
+      .ant-result-extra {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+        
+        button {
+          min-width: 150px;
+        }
+      }
+    }
+  }
+  
+  .bank-transfer-info {
+    margin-bottom: 24px;
+    
+    h5 {
+      margin-bottom: 16px;
+    }
+    
+    .ant-descriptions-bordered {
+      .ant-descriptions-item-label {
+        width: 150px;
+        background-color: #fafafa;
+      }
+    }
+  }
+  
+  .order-details {
+    .order-card {
+      margin-bottom: 24px;
+      
+      .ant-card-head {
+        background-color: #fafafa;
+      }
+      
+      .order-status-steps {
+        margin: 16px 0 24px;
+        
+        h3 {
+          margin-bottom: 16px;
+          font-size: 16px;
+          font-weight: 500;
+        }
+        
+        .ant-steps-item-title {
+          font-size: 14px;
+        }
+        
+        .ant-steps-item-description {
+          font-size: 12px;
+        }
+      }
+      
+      .order-items {
+        h4 {
+          margin-bottom: 16px;
+          font-size: 16px;
+          font-weight: 500;
+        }
+        
+        .ant-list-item {
+          padding: 12px 0;
+        }
+        
+        .item-image {
+          width: 48px;
+          height: 48px;
+          object-fit: cover;
+          border-radius: 4px;
+          border: 1px solid #eee;
+        }
+        
+        .ant-list-item-meta-title {
+          margin-bottom: 4px !important;
+          font-size: 14px;
+        }
+        
+        .ant-list-item-meta-description {
+          font-size: 13px;
+          color: #666;
+        }
+        
+        .item-total {
+          font-weight: 500;
+          color: #333;
+        }
+      }
+      
+      .order-totals {
+        margin-top: 8px;
+        
+        .total-row {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 8px;
+          font-size: 14px;
+          color: #666;
+          
+          &.discount {
+            color: #f5222d;
+          }
+          
+          &.grand-total {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px dashed #eee;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,81 @@
+@import "../../../../styles/variables.scss";
+@import "../../../../styles/mixins.scss";
+
+.profile-page {
+  padding: $spacing-lg 0;
+  background-color: $bg-light;
+  min-height: 70vh;
+  
+  .container {
+    @include container;
+    max-width: $container-width;
+    padding: 0 $spacing-md;
+  }
+  
+  .profile-card {
+    border-radius: $border-radius;
+    overflow: hidden;
+    height: 100%;
+    
+    .profile-header {
+      text-align: center;
+      padding: $spacing-md 0;
+      
+      .ant-avatar {
+        margin-bottom: $spacing-md;
+      }
+      
+      h4 {
+        margin-bottom: $spacing-xs;
+      }
+      
+      .verify-status {
+        margin-top: $spacing-sm;
+        padding: $spacing-xs;
+        border-radius: $border-radius-sm;
+        background-color: rgba(0, 0, 0, 0.02);
+      }
+    }
+    
+    .profile-menu {
+      .menu-item {
+        padding: $spacing-sm $spacing-md;
+        margin-bottom: $spacing-xs;
+        border-radius: $border-radius-sm;
+        cursor: pointer;
+        transition: all $transition-speed;
+        
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        &.active {
+          background-color: rgba($primary-color, 0.1);
+          color: $primary-color;
+          font-weight: 500;
+        }
+        
+        .anticon {
+          margin-right: $spacing-sm;
+        }
+      }
+    }
+  }
+  
+  .profile-content {
+    border-radius: $border-radius;
+    
+    .ant-tabs-nav {
+      margin-bottom: $spacing-md;
+    }
+  }
+  
+  // Responsive adjustments
+  @include respond-below(md) {
+    padding: $spacing-md 0;
+    
+    .profile-card {
+      margin-bottom: $spacing-md;
+    }
+  }
+}

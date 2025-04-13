@@ -1,0 +1,134 @@
+// src/layouts/ClientLayout/styles/UserDropdown.scss
+@import "../../../styles/mixins.scss";
+@import "../../../styles/variables.scss";
+
+/* File CSS riêng cho client-user-dropdown */
+.client-namespace .client-user-dropdown {
+  position: relative;
+  cursor: pointer;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: transparent;
+  }
+  
+  .user-avatar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    background-color: white !important;
+    color: $primary-color !important;
+    border-radius: 50% !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2) !important;
+  }
+  
+  .avatar-btn {
+    display: flex !important;
+    align-items: center !important;
+    color: white !important;
+    padding: 4px 12px !important;
+    border: none !important;
+    background: transparent !important;
+    cursor: pointer !important;
+    border-radius: 4px !important;
+    
+    &:hover {
+      background: transparent !important;
+    }
+    
+    .user-name {
+      margin-left: 8px !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+    }
+    
+    &.active {
+      background: rgba(255, 255, 255, 0.15) !important;
+    }
+  }
+  
+  .dropdown-menu {
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    background-color: white !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 8px !important;
+    min-width: 220px !important;
+    z-index: 9999 !important;
+    padding: 8px 0 !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    margin-top: 8px !important;
+    
+    &::before {
+      content: '' !important;
+      position: absolute !important;
+      top: -5px !important;
+      right: 20px !important;
+      width: 10px !important;
+      height: 10px !important;
+      background: white !important;
+      transform: rotate(45deg) !important;
+      box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.04) !important;
+    }
+    
+    .dropdown-item {
+      display: block !important;
+      padding: 12px 20px !important;
+      color: $text-color !important;
+      text-decoration: none !important;
+      border: none !important;
+      background: none !important;
+      font-size: 14px !important;
+      text-align: left !important;
+      width: 100% !important;
+      cursor: pointer !important;
+      line-height: 1.5 !important;
+      
+      &:hover {
+        background-color: #f8f8f8 !important;
+        color: $text-color !important;
+      }
+    }
+    
+    .dropdown-divider {
+      height: 1px !important;
+      background-color: #eee !important;
+      margin: 8px 0 !important;
+    }
+  }
+}
+
+.client-namespace .client-user-dropdown a.dropdown-item, 
+.client-namespace .client-user-dropdown .dropdown-item a,
+.client-namespace .client-user-dropdown button.dropdown-item {
+  color: $text-color !important;
+  text-decoration: none !important;
+  
+  &:hover, &:focus, &:active {
+    color: $text-color !important;
+    text-decoration: none !important;
+    background-color: #f8f8f8 !important;
+  }
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .client-namespace .client-user-dropdown {
+    .avatar-btn {
+      padding: 4px 8px !important;
+      
+      .user-name {
+        display: none !important;
+      }
+    }
+  }
+}

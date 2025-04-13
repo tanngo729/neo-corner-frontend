@@ -1,0 +1,212 @@
+// src/layouts/ClientLayout/styles/ClientLayout.scss - Simplified with fixed positions
+@import "../../../styles/mixins.scss";
+@import "../../../styles/variables.scss";
+
+// Định nghĩa chiều cao cố định
+$topbar-height: 40px;
+$header-height: 120px; // Điều chỉnh theo chiều cao thực tế của header
+$total-offset: calc(#{$topbar-height} + #{$header-height});
+
+:root {
+  // Màu chính - Jollibee theme
+  --ant-primary-color: #{$primary-color};  // #e31836 (Đỏ Jollibee)
+  --ant-primary-color-hover: #{$primary-dark}; // #e31836c4 (Đỏ đậm)
+  --ant-secondary-color: #{$secondary-color}; // #ffc522 (Vàng Jollibee)
+  
+  // Màu chức năng
+  --ant-success-color: #28A745;
+  --ant-warning-color: #FFC107;
+  --ant-error-color: #DC3545;
+  --ant-info-color: #2980B9;
+}
+
+html, body {
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+// Cài đặt chung để component working
+.ant-btn-primary {
+  background-color: $primary-color !important;
+  border-color: $primary-color !important;
+  
+  &:hover {
+    background-color: $primary-dark !important;
+    border-color: $primary-dark !important;
+  }
+}
+
+.ant-btn-default {
+  &:hover {
+    color: $primary-color !important;
+    border-color: $primary-color !important;
+  }
+}
+
+.ant-menu-item-selected {
+  color: $primary-color !important;
+  
+  &::after {
+    border-bottom-color: $primary-color !important;
+  }
+}
+
+.ant-badge-count {
+  background-color: $secondary-color !important;
+  color: $text-color !important;
+}
+
+.ant-avatar {
+  &.ant-avatar-icon {
+    background-color: $primary-color !important;
+  }
+}
+
+.ant-drawer-title {
+  color: $text-color !important;
+}
+
+.ant-menu-horizontal > .ant-menu-item-selected a {
+  color: $primary-color !important;
+}
+
+.ant-menu-horizontal > .ant-menu-item:hover {
+  color: $primary-dark !important;
+  
+  a {
+    color: $primary-dark !important;
+  }
+}
+
+// Override default blue focus
+.ant-menu-horizontal > .ant-menu-item::after {
+  border-bottom: 2px solid $primary-color !important;
+}
+
+// Override cho Form và Input
+.ant-input:hover {
+  border-color: $primary-color !important;
+}
+
+.ant-input:focus, .ant-input-focused {
+  border-color: $primary-color !important;
+  box-shadow: 0 0 0 2px rgba($primary-color, 0.2) !important;
+}
+
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: $primary-color !important;
+  border-color: $primary-color !important;
+}
+
+.ant-radio-checked .ant-radio-inner {
+  border-color: $primary-color !important;
+  
+  &::after {
+    background-color: $primary-color !important;
+  }
+}
+
+.ant-switch-checked {
+  background-color: $primary-color !important;
+}
+
+// Custom button override
+.custom-button {
+  &.custom-button-primary {
+    background-color: $primary-color !important;
+    border-color: $primary-color !important;
+    
+    &:hover {
+      background-color: $primary-dark !important;
+      border-color: $primary-dark !important;
+    }
+  }
+  
+  &.custom-button-secondary {
+    background-color: $secondary-color !important;
+    border-color: $secondary-color !important;
+    color: $text-color !important;
+    
+    &:hover {
+      background-color: darken($secondary-color, 10%) !important;
+      border-color: darken($secondary-color, 10%) !important;
+    }
+  }
+}
+
+// Layout chính - đơn giản hóa
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: $bg-light;
+  width: 100%;
+  position: relative;
+  overflow-x: hidden;
+  
+  padding-top: 145px;
+  
+  @include respond-below(md) {
+    padding-top: $header-height;
+  }
+  
+  @include respond-below(sm) {
+    padding-top: 60px; 
+  }
+}
+
+// Main Content
+.main-content {
+  flex: 1;
+  min-height: 500px;
+  background-color: #fff;
+  padding-bottom: $spacing-lg;
+  width: 100%;
+  max-width: 100%;
+  
+  @include respond-below(md) {
+    padding-top: $spacing-md;
+    padding-bottom: $spacing-md;
+  }
+  
+  @include respond-below(sm) {
+    padding-top: 0px;
+    padding-bottom: $spacing-sm;
+  }
+  
+  // Container styles for all pages
+  .page-container {
+    @include container;
+    overflow-x: hidden;
+  }
+}
+
+// Fix box model issues
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+// Container with consistent padding
+.container {
+  width: 100%;
+  max-width: $container-width;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+  box-sizing: border-box;
+}
+
+// Fix for mobile Swiper overflow
+.swiper {
+  overflow: hidden;
+  width: 100%;
+}
+
+// Fix image sizing
+img {
+  max-width: 100%;
+  height: auto;
+}

@@ -1,0 +1,74 @@
+@import "../../../../styles/variables.scss";
+@import "../../../../styles/mixins.scss";
+
+.verify-email-required-container {
+  min-height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: $spacing-lg 0;
+  background-color: $bg-light;
+
+  .verify-email-required-box {
+    width: 100%;
+    max-width: 600px;
+    padding: $spacing-lg;
+    background-color: $bg-color;
+    border-radius: $border-radius;
+    box-shadow: 0 2px 8px $shadow-color;
+    
+    .email-icon {
+      color: $primary-color;
+      font-size: 72px;
+    }
+    
+    .ant-result-title {
+      font-size: $font-size-xxl;
+      color: $text-color;
+      margin-top: $spacing-md;
+    }
+    
+    .email-message {
+      margin: $spacing-md 0;
+      text-align: center;
+      
+      p {
+        font-size: $font-size-md;
+        margin-bottom: $spacing-sm;
+      }
+    }
+    
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
+      margin-top: $spacing-md;
+      
+      .resend-button {
+        min-width: 220px;
+      }
+    }
+  }
+
+  @include respond-below(sm) {
+    padding: $spacing-md $spacing-sm;
+    
+    .verify-email-required-box {
+      padding: $spacing-md;
+      
+      .email-icon {
+        font-size: 56px;
+      }
+      
+      .ant-result-title {
+        font-size: $font-size-xl;
+      }
+      
+      .action-buttons {
+        .ant-btn {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

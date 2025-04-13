@@ -1,0 +1,192 @@
+/* src/styles/theme.css */
+:root {
+  /* Light theme default variables */
+  --primary-bg: #F5F5F5;
+  --secondary-bg: #FFFFFF;
+  --text-primary: #000000;
+  --text-secondary: #666666;
+  --border-color: #E0E0E0;
+  --hover-bg: #ECF0F1;
+  --accent-primary: #3498DB;
+  --accent-secondary: #2980B9;
+  
+  /* Font sizes - Medium (default) */
+  --font-size-base: 14px;
+  --font-size-sm: 13px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-xxl: 20px;
+}
+
+/* Dark theme */
+.dark-theme {
+  --primary-bg: #181818;
+  --secondary-bg: #2C2C2E;
+  --text-primary: #E0E0E0;
+  --text-secondary: #A1A1AA;
+  --border-color: #3A3A3C;
+  --hover-bg: #2C3442;
+  --accent-primary: #41b1a9;
+  --accent-secondary: #2A9D8F;
+}
+
+/* Font sizes */
+.font-size-small {
+  --font-size-base: 13px;
+  --font-size-sm: 12px;
+  --font-size-lg: 14px;
+  --font-size-xl: 16px;
+  --font-size-xxl: 18px;
+}
+
+.font-size-medium {
+  --font-size-base: 14px;
+  --font-size-sm: 13px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-xxl: 20px;
+}
+
+.font-size-large {
+  --font-size-base: 16px;
+  --font-size-sm: 14px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 24px;
+}
+
+/* Apply font sizes to elements */
+body {
+  font-size: var(--font-size-base);
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+/* Apply to common elements */
+h1 {
+  font-size: var(--font-size-xxl);
+}
+
+h2 {
+  font-size: var(--font-size-xl);
+}
+
+h3 {
+  font-size: var(--font-size-lg);
+}
+
+p {
+  font-size: var(--font-size-base);
+}
+
+small {
+  font-size: var(--font-size-sm);
+}
+
+/* Apply to Ant Design components */
+.ant-btn {
+  font-size: var(--font-size-base) !important;
+}
+
+.ant-btn-sm {
+  font-size: var(--font-size-sm) !important;
+}
+
+.ant-btn-lg {
+  font-size: var(--font-size-lg) !important;
+}
+
+.ant-input, .ant-select, .ant-checkbox-wrapper, .ant-radio-wrapper,
+.ant-form-item-label > label, .ant-table, .ant-pagination, .ant-menu-item {
+  font-size: var(--font-size-base) !important;
+}
+
+.ant-form-item-explain, .ant-form-item-extra {
+  font-size: var(--font-size-sm) !important;
+}
+
+.ant-card-head-title, .ant-modal-title, .ant-page-header-heading-title {
+  font-size: var(--font-size-lg) !important;
+}
+
+/* Force Ant Design components to use our font size */
+.ant-typography {
+  font-size: var(--font-size-base) !important;
+}
+
+.ant-typography h1 {
+  font-size: var(--font-size-xxl) !important;
+}
+
+.ant-typography h2 {
+  font-size: var(--font-size-xl) !important;
+}
+
+.ant-typography h3 {
+  font-size: var(--font-size-lg) !important;
+}
+
+.ant-typography h4 {
+  font-size: calc(var(--font-size-base) * 1.1) !important;
+}
+
+.ant-typography h5 {
+  font-size: var(--font-size-base) !important;
+}
+
+/* Card and component backgrounds */
+.ant-card, .ant-modal-content, .ant-drawer-content, 
+.ant-popover-inner, .ant-select-dropdown, .ant-dropdown-menu {
+  background-color: var(--secondary-bg);
+}
+
+/* Dark theme specific adjustments */
+.dark-theme .ant-card, .dark-theme .ant-modal-content, 
+.dark-theme .ant-drawer-content, .dark-theme .ant-table {
+  background-color: var(--secondary-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.dark-theme .ant-btn:not(.ant-btn-primary):not(.ant-btn-link):not(.ant-btn-text) {
+  background-color: var(--secondary-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-theme .ant-input, .dark-theme .ant-select-selector, 
+.dark-theme .ant-checkbox-wrapper, .dark-theme .ant-radio-wrapper {
+  background-color: var(--secondary-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+/* Compact menu styles */
+.app-layout.compact-menu .ant-layout-sider {
+  width: 80px !important;
+  min-width: 80px !important;
+  max-width: 80px !important;
+  flex: 0 0 80px !important;
+}
+
+.app-layout.compact-menu .ant-menu-inline-collapsed {
+  width: 80px;
+}
+
+.app-layout.compact-menu .logo {
+  padding: 0;
+}
+
+.app-layout.compact-menu .logo img {
+  margin: 0 auto;
+}
+
+.app-layout.compact-menu .ant-menu-inline-collapsed .ant-menu-item {
+  padding: 0 24px !important;
+}
+
+/* Theme transition */
+.theme-transition, .theme-transition * {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
