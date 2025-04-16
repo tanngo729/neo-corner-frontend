@@ -1,15 +1,18 @@
+// src/layouts/AdminLayout/index.js
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Button, Dropdown, Avatar, Space } from 'antd';
 import {
   MenuUnfoldOutlined, MenuFoldOutlined, DashboardOutlined,
   ShoppingOutlined, AppstoreOutlined, UserOutlined,
-  TagsOutlined, SettingOutlined, BellOutlined, LogoutOutlined,
+  TagsOutlined, SettingOutlined, LogoutOutlined,
   KeyOutlined, CustomerServiceOutlined
 } from '@ant-design/icons';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import AdminConfigProvider from '../../theme/AdminConfigProvider';
+import { AdminNotificationDropdown } from '../../components/common/notification/NotificationDropdown';
+import { useSocket } from '../../contexts/SocketContext';
 import './AdminLayout.css';
 
 const { Header, Sider, Content } = Layout;
@@ -23,32 +26,50 @@ const AdminLayout = () => {
   const { theme: themeMode, toggleTheme } = useTheme();
   const isDarkMode = themeMode === 'dark';
 
+  // Lấy thông tin socket từ context
+  const { socket, connected, authenticateSocket } = useSocket();
+
+  // Cải thiện xác thực socket: Gửi xác thực khi đã có kết nối và có thông tin người dùng
+  useEffect(() => {
+    if (connected && user && user._id) {
+      console.log('Đang xác thực admin socket:', user._id);
+      authenticateSocket(user._id, true);
+
+      // Gửi sự kiện kiểm tra trạng thái kết nối của socket
+      socket.emit('check-connection', {
+        page: 'admin-dashboard',
+        adminId: user._id,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }, [connected, user, authenticateSocket, socket]);
+
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth <= 992;
       setIsMobile(mobile);
 
-      // Auto-collapse on mobile
+      // Tự động thu gọn menu khi trên mobile
       if (mobile && !collapsed) {
         setCollapsed(true);
       }
     };
 
     window.addEventListener('resize', handleResize);
-    handleResize(); // Initialize on mount
+    handleResize(); // Khởi tạo khi mount
 
     return () => window.removeEventListener('resize', handleResize);
   }, [collapsed]);
 
-  // Load preferences from localStorage
+  // Load preferences từ localStorage
   useEffect(() => {
     try {
       const preferencesString = localStorage.getItem('userPreferences');
       if (preferencesString) {
         const preferences = JSON.parse(preferencesString);
 
-        // Only apply compact menu on non-mobile view
+        // Chỉ áp dụng compact menu khi không ở chế độ mobile
         if (!isMobile && preferences.compactMenu !== undefined) {
           setCollapsed(preferences.compactMenu);
         }
@@ -58,7 +79,7 @@ const AdminLayout = () => {
     }
   }, [isMobile]);
 
-  // Watch for preference changes
+  // Theo dõi sự thay đổi của preference
   const prevCompactMenu = React.useRef(collapsed);
 
   useEffect(() => {
@@ -74,12 +95,12 @@ const AdminLayout = () => {
     return () => window.removeEventListener('preferenceChange', handlePreferenceChange);
   }, [isMobile, collapsed]);
 
-  // Toggle sidebar collapsed state
+  // Toggle collapsed của sidebar
   const toggleCollapsed = () => {
     const newCollapsed = !collapsed;
     setCollapsed(newCollapsed);
 
-    // Only update localStorage on non-mobile
+    // Cập nhật lại localStorage nếu không ở mobile
     if (!isMobile) {
       try {
         const preferencesString = localStorage.getItem('userPreferences');
@@ -95,7 +116,7 @@ const AdminLayout = () => {
     }
   };
 
-  // Menu items with permission checks
+  // Các menu item với kiểm tra quyền truy cập
   const getMenuItems = () => {
     const isAdmin = user?.role?.name === 'Admin' || user?.role?.name === 'Super Admin';
     const items = [
@@ -122,12 +143,12 @@ const AdminLayout = () => {
         label: <Link to="/admin/orders">Đơn hàng</Link>,
         permission: 'orders.view'
       },
-      // New combined accounts menu with submenu
+      // Menu quản lý tài khoản với submenu
       {
         key: 'accounts',
         icon: <UserOutlined />,
         label: 'Quản lý tài khoản',
-        permission: 'customers.view', // Show if user has either permission
+        permission: 'customers.view', // Hiển thị nếu người dùng có quyền này
         children: [
           {
             key: 'customers',
@@ -157,7 +178,7 @@ const AdminLayout = () => {
       },
     ];
 
-    // Filter menu items by permission
+    // Lọc các menu item theo quyền của người dùng
     return items.filter(item => {
       if (!item.permission || isAdmin) {
         return true;
@@ -166,19 +187,19 @@ const AdminLayout = () => {
     });
   };
 
-  // Get selected key based on URL
+  // Xác định menu item đang được chọn dựa trên URL
   const getSelectedKey = () => {
     const path = location.pathname;
     if (path === '/admin') return ['dashboard'];
 
-    // Handle profile route specially - this should not select any sidebar item
+    // Trường hợp profile không chọn sidebar item nào
     if (path.includes('/admin/profile')) return [];
 
     const match = path.match(/\/admin\/([^\/]*)/);
     return match && match[1] ? [match[1]] : ['dashboard'];
   };
 
-  // User menu dropdown
+  // Dropdown menu cho người dùng
   const userMenu = (
     <Menu>
       <Menu.Item key="profile" icon={<UserOutlined />} onClick={() => navigate('/admin/profile')}>
@@ -212,7 +233,7 @@ const AdminLayout = () => {
             selectedKeys={getSelectedKey()}
             items={getMenuItems()}
             onClick={({ key }) => {
-              // Direct navigation instead of handleMenuClick function
+              // Điều hướng trực tiếp thay vì dùng function handleMenuClick
               if (key === 'dashboard') {
                 navigate('/admin');
               } else {
@@ -232,13 +253,8 @@ const AdminLayout = () => {
             />
             <div className="admin-header-right">
               <Space>
-                <Button
-                  type="text"
-                  icon={<BellOutlined />}
-                  className="notification-button"
-                  onClick={() => navigate('/admin/notifications')}
-                  aria-label="Notifications"
-                />
+                {/* Sử dụng AdminNotificationDropdown */}
+                <AdminNotificationDropdown />
                 <Dropdown overlay={userMenu} trigger={['click']}>
                   <div className="user-dropdown" aria-label="User menu">
                     <Avatar icon={<UserOutlined />} src={user?.avatar?.url} />

@@ -10,11 +10,12 @@ import MobileDrawer from './components/MobileDrawer';
 import MobileSearch from './components/MobileSearch';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import CustomConfigProvider from '../../theme/ClientConfigProvider';
+import SocketAuthComponent from '../../components/common/SocketAuthComponents';
 
 // Services and Hooks
 import { categoryService } from '../../services/client';
 import { useAuth } from '../../contexts/AuthContext';
-// Không cần import useCart nữa vì đã dùng trực tiếp trong Header
+import { useNotification } from '../../contexts/NotificationContext';
 
 // Styles
 import './styles/ClientLayout.scss';
@@ -28,12 +29,15 @@ const ClientLayout = () => {
   // Sử dụng auth hook để lấy thông tin xác thực
   const { isAuthenticated, user, logout } = useAuth();
 
+  // Sử dụng notification hook để lấy số thông báo chưa đọc
+  const { unreadCount } = useNotification();
+
   // Danh mục
   const [allCategories, setAllCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
-  // Thông báo
-  const [notificationCount, setNotificationCount] = useState(3);
+  // Thiết lập số thông báo từ hook notification
+  const notificationCount = unreadCount || 0;
 
   // Fetch danh mục kèm danh mục con
   useEffect(() => {
@@ -162,6 +166,9 @@ const ClientLayout = () => {
   return (
     <CustomConfigProvider>
       <div className="layout">
+        {/* Thêm SocketAuthComponent để xác thực socket */}
+        <SocketAuthComponent />
+
         {/* Topbar */}
         <Topbar notificationCount={notificationCount} />
 

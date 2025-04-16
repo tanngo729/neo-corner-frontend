@@ -17,14 +17,35 @@ const VerifyEmailPage = () => {
       try {
         const response = await authService.verifyEmail(token);
 
-        if (response && response.data && response.data.success) {
+        // Log toàn bộ response để debug
+        console.log('Verify Email Full Response:', {
+          status: response.status,
+          data: response.data,
+          headers: response.headers
+        });
+
+        // Kiểm tra nhiều điều kiện
+        if (response.data && response.data.success) {
+          // Nếu API trả về redirectUrl
           navigate('/verify-success');
-        } else {
-          setError('Không thể xác thực email. Vui lòng thử lại.');
-          setLoading(false);
+          return;
         }
+
+        // Nếu không thành công, hiển thị lỗi
+        setError(response.data?.message || 'Không thể xác thực email');
+        setLoading(false);
       } catch (error) {
-        console.error('Email verification error:', error);
+        console.error('Email Verification Detailed Error:', error);
+
+        // Log chi tiết lỗi
+        if (error.response) {
+          console.log('Error Response:', {
+            data: error.response.data,
+            status: error.response.status,
+            headers: error.response.headers
+          });
+        }
+
         setError(error.response?.data?.message || 'Lỗi xác thực email');
         setLoading(false);
       }

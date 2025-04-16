@@ -55,8 +55,12 @@ const authService = {
     return clientInstance.post('/auth/verify-reset-token', { token });
   },
   verifyEmail: (token) => {
-    return clientInstance.get(`/auth/verify-email/${token}`);
-  }
+    return clientInstance.get(`/auth/verify-email/${token}`, {
+      validateStatus: function (status) {
+        return status >= 200 && status < 600;
+      }
+    });
+  },
 };
 
 export default authService;

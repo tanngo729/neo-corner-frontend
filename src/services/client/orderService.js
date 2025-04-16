@@ -1,35 +1,60 @@
 // src/services/client/orderService.js
-import { clientInstance } from '../../config/api';
+import { clientGet, clientPost, clientPut } from '../../utils/apiHelper';
 
 const orderService = {
   // Tạo đơn hàng mới
-  createOrder: (orderData) => {
-    return clientInstance.post('/client/orders', orderData);
+  createOrder: async (orderData) => {
+    try {
+      const response = await clientPost('/orders', orderData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating order:', error);
+      throw error;
+    }
   },
 
-  // Lấy lịch sử đơn hàng của người dùng
-  getUserOrders: (params = {}) => {
-    return clientInstance.get('/client/orders/user', { params });
+  // Lấy danh sách đơn hàng của người dùng
+  getMyOrders: async (params = {}) => {
+    try {
+      const response = await clientGet('/orders', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error getting orders:', error);
+      throw error;
+    }
   },
 
   // Lấy chi tiết đơn hàng
-  getOrderDetail: (orderId) => {
-    return clientInstance.get(`/client/orders/${orderId}`);
+  getOrderDetail: async (orderId) => {
+    try {
+      const response = await clientGet(`/orders/${orderId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error getting order ${orderId}:`, error);
+      throw error;
+    }
   },
 
   // Hủy đơn hàng
-  cancelOrder: (orderId) => {
-    return clientInstance.post(`/client/orders/${orderId}/cancel`);
+  cancelOrder: async (orderId, reason) => {
+    try {
+      const response = await clientPut(`/orders/${orderId}/cancel`, { reason });
+      return response.data;
+    } catch (error) {
+      console.error(`Error cancelling order ${orderId}:`, error);
+      throw error;
+    }
   },
 
-  // Xác nhận đã nhận hàng
-  confirmReceipt: (orderId) => {
-    return clientInstance.post(`/client/orders/${orderId}/confirm-receipt`);
-  },
-
-  // Theo dõi đơn hàng (không cần đăng nhập)
-  trackOrder: (orderCode) => {
-    return clientInstance.get(`/client/orders/track/${orderCode}`);
+  // Kiểm tra đơn hàng bằng mã đơn hàng và số điện thoại
+  checkOrderByNumber: async (orderCode, phone) => {
+    try {
+      const response = await clientPost('/orders/check', { orderCode, phone });
+      return response.data;
+    } catch (error) {
+      console.error('Error checking order:', error);
+      throw error;
+    }
   }
 };
 

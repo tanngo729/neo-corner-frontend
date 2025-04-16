@@ -1,19 +1,17 @@
-// src/contexts/AdminAuthContext.js
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
 import { message } from 'antd';
 import { authService, profileService } from '../services/admin';
+import { adminInstance } from '../config/api';
 
-// Tạo context
 const AdminAuthContext = createContext();
 
-// Provider component
 export const AdminAuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [permissions, setPermissions] = useState([]);
 
-  // Kiểm tra đăng nhập khi component mount
+  // Khởi tạo: đọc token và thông tin user từ localStorage và thiết lập header
   useEffect(() => {
     const savedToken = localStorage.getItem('adminToken');
     const savedUser = localStorage.getItem('adminUser');
@@ -24,30 +22,31 @@ export const AdminAuthProvider = ({ children }) => {
         const userData = JSON.parse(savedUser);
         setUser(userData);
         setPermissions(userData.role?.permissions || []);
+        // Thiết lập header Authorization cho adminInstance
+        adminInstance.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
       } catch (error) {
-        console.error('Invalid user data in localStorage');
-        logout();
+        console.error('Invalid user data in localStorage:', error);
+        logout(); // Nếu dữ liệu user không hợp lệ, tiến hành đăng xuất
       }
+    } else {
+      // Nếu không có token hoặc user, xóa header
+      delete adminInstance.defaults.headers.common['Authorization'];
     }
-
     setLoading(false);
   }, []);
 
-  // Kiểm tra thông tin người dùng hiện tại từ server
+  // Hàm kiểm tra thông tin người dùng hiện tại từ server
   const checkCurrentUser = useCallback(async () => {
     if (!token) return;
-
     try {
       setLoading(true);
       const response = await profileService.getProfile();
-
       if (response && response.success) {
         const userData = response.data;
         setUser(userData);
         setPermissions(userData.role?.permissions || []);
         localStorage.setItem('adminUser', JSON.stringify(userData));
       } else {
-        // Nếu có lỗi, đăng xuất
         logout();
       }
     } catch (error) {
@@ -60,7 +59,7 @@ export const AdminAuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  // Kiểm tra thông tin người dùng khi token thay đổi
+  // Gọi checkCurrentUser mỗi khi token thay đổi
   useEffect(() => {
     if (token) {
       checkCurrentUser();
@@ -72,7 +71,6 @@ export const AdminAuthProvider = ({ children }) => {
     try {
       setLoading(true);
       console.log('Admin login với credentials:', credentials);
-
       // Xóa dữ liệu cũ trước khi đăng nhập mới
       localStorage.removeItem('adminToken');
       localStorage.removeItem('adminUser');
@@ -85,6 +83,7 @@ export const AdminAuthProvider = ({ children }) => {
         console.log('User data:', userData);
         console.log('Token received:', authToken ? `${authToken.substring(0, 15)}...` : 'không có token');
 
+        // Cập nhật state
         setUser(userData);
         setToken(authToken);
         setPermissions(userData.role?.permissions || []);
@@ -93,8 +92,8 @@ export const AdminAuthProvider = ({ children }) => {
         localStorage.setItem('adminUser', JSON.stringify(userData));
         localStorage.setItem('adminToken', authToken);
 
-        console.log('Đã lưu token vào localStorage');
-        console.log('Kiểm tra token trong localStorage:', localStorage.getItem('adminToken'));
+        // Thiết lập header Authorization cho adminInstance
+        adminInstance.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
 
         message.success('Đăng nhập thành công!');
         return true;
@@ -104,7 +103,7 @@ export const AdminAuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Admin login error:', error);
-      console.error('Admin login error details:', error.response?.data);
+      console.error('Chi tiết lỗi:', error.response?.data);
       message.error('Đăng nhập thất bại: ' + (error.response?.data?.message || error.message));
       return false;
     } finally {
@@ -121,14 +120,16 @@ export const AdminAuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // Luôn thực hiện các bước sau dù API thành công hay thất bại
+      // Xóa thông tin đăng nhập và token
       setUser(null);
       setToken(null);
       setPermissions([]);
       localStorage.removeItem('adminUser');
       localStorage.removeItem('adminToken');
+      delete adminInstance.defaults.headers.common['Authorization'];
       setLoading(false);
       message.success('Đã đăng xuất');
+      // Chuyển hướng về trang login
       window.location.href = '/admin/login';
     }
   }, []);
@@ -142,39 +143,31 @@ export const AdminAuthProvider = ({ children }) => {
     });
   }, []);
 
-  // Hàm kiểm tra quyền
+  // Hàm kiểm tra quyền: kiểm tra 1 quyền cụ thể
   const hasPermission = useCallback((requiredPermission) => {
     if (!permissions || permissions.length === 0) return false;
-
-    // Admin có tất cả quyền
+    // Nếu role là Admin thì mặc định có tất cả quyền
     if (user?.role?.name === 'Admin') return true;
-
     return permissions.includes(requiredPermission);
   }, [permissions, user]);
 
-  // Hàm kiểm tra nhiều quyền (cần có tất cả)
+  // Hàm kiểm tra quyền: cần có TẤT CẢ các quyền được truyền vào
   const hasAllPermissions = useCallback((requiredPermissions = []) => {
     if (!permissions || permissions.length === 0) return false;
     if (requiredPermissions.length === 0) return true;
-
-    // Admin có tất cả quyền
     if (user?.role?.name === 'Admin') return true;
-
     return requiredPermissions.every(permission => permissions.includes(permission));
   }, [permissions, user]);
 
-  // Hàm kiểm tra có ít nhất một quyền
+  // Hàm kiểm tra quyền: có ít nhất một quyền trong danh sách
   const hasAnyPermission = useCallback((requiredPermissions = []) => {
     if (!permissions || permissions.length === 0) return false;
     if (requiredPermissions.length === 0) return true;
-
-    // Admin có tất cả quyền
     if (user?.role?.name === 'Admin') return true;
-
     return requiredPermissions.some(permission => permissions.includes(permission));
   }, [permissions, user]);
 
-  // Value cho context
+  // Giá trị cho context
   const value = {
     user,
     token,
@@ -197,7 +190,7 @@ export const AdminAuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook để sử dụng context
+// Custom hook sử dụng context
 export const useAdminAuth = () => {
   const context = useContext(AdminAuthContext);
   if (!context) {

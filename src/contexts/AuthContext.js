@@ -1,127 +1,109 @@
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
 import { authService } from '../services/client';
 import { message } from 'antd';
-import { clientInstance } from '../config/api'; // Thêm import
+import { clientInstance } from '../config/api';
 
-// Tạo context
 const AuthContext = createContext();
 
-// Provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Kiểm tra xác thực khi component mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      const savedUser = localStorage.getItem('user');
-
-      console.log("Token khi khởi tạo:", token ? "Tồn tại" : "Không tồn tại");
-      console.log("User đã lưu:", savedUser ? "Tồn tại" : "Không tồn tại");
-
-      // BƯỚC 1: Thiết lập user từ localStorage trước
-      if (token && savedUser) {
-        try {
-          const userData = JSON.parse(savedUser);
-          setUser(userData);
-          setIsAuthenticated(true);
-          console.log("Đã thiết lập người dùng từ localStorage", userData);
-        } catch (e) {
-          console.error("Lỗi parse user data:", e);
-        }
-      } else {
-        setIsAuthenticated(false);
-        setUser(null);
-      }
-
-      // BƯỚC 2: Sau đó mới gọi API để cập nhật (nếu có token)
-      if (token) {
-        try {
-          console.log("Đang lấy thông tin người dùng với token");
-          // Thiết lập token trước khi gọi API
-          clientInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-          const response = await authService.getUserProfile();
-          console.log("Phản hồi từ API:", response.data);
-
-          if (response && response.data && response.data.success) {
-            setUser(response.data.data);
-            setIsAuthenticated(true);
-            localStorage.setItem('user', JSON.stringify(response.data.data));
-            console.log("Xác thực người dùng thành công");
-          } else {
-            console.log("API trả về lỗi, giữ trạng thái từ localStorage");
-            // Không đăng xuất nếu có dữ liệu từ localStorage
-          }
-        } catch (error) {
-          console.error('Lỗi kiểm tra xác thực:', error);
-
-          // VẪN GIỮ TRẠNG THÁI từ localStorage nếu đã có
-          if (savedUser) {
-            console.log("Giữ thông tin người dùng từ localStorage mặc dù API lỗi");
-            // Đã thiết lập từ localStorage ở trên, không cần làm gì thêm
-          } else {
-            console.log("Không có dữ liệu người dùng, tiến hành đăng xuất");
-            handleLogout();
-          }
-        }
-      }
-
-      setLoading(false);
-    };
-
-    checkAuth();
+  // Xử lý đăng xuất: Xóa token, xóa header và cập nhật state
+  const handleLogout = useCallback(() => {
+    // Xóa header Authorization
+    delete clientInstance.defaults.headers.common['Authorization'];
+    // Xóa thông tin đăng nhập trong localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    // Cập nhật state
+    setUser(null);
+    setIsAuthenticated(false);
+    console.log("Đăng xuất hoàn tất");
   }, []);
+
+  // Hàm kiểm tra xác thực: Đọc token, user từ localStorage và gọi API xác thực
+  const checkAuth = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+
+    // Nếu có token, thiết lập header cho các request sau
+    if (token) {
+      clientInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete clientInstance.defaults.headers.common['Authorization'];
+    }
+
+    // BƯỚC 1: Thiết lập thông tin người dùng từ localStorage nếu có
+    if (token && savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+        console.log("Thiết lập người dùng từ localStorage:", parsedUser);
+      } catch (error) {
+        console.error("Lỗi parse user data:", error);
+        handleLogout();
+      }
+    } else {
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+
+    // BƯỚC 2: Gọi API để cập nhật thông tin người dùng nếu có token
+    if (token) {
+      try {
+        console.log("Đang lấy thông tin người dùng từ API với token");
+        const response = await authService.getUserProfile();
+        if (response?.data?.success) {
+          const freshUser = response.data.data;
+          setUser(freshUser);
+          setIsAuthenticated(true);
+          localStorage.setItem('user', JSON.stringify(freshUser));
+          console.log("Cập nhật thông tin người dùng từ API:", freshUser);
+        } else {
+          console.log("API không trả về dữ liệu hợp lệ, giữ trạng thái từ localStorage");
+        }
+      } catch (error) {
+        console.error('Lỗi kiểm tra xác thực:', error);
+        if (error.response?.status === 401) {
+          handleLogout();
+        }
+      }
+    }
+    setLoading(false);
+  }, [handleLogout]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   // Đăng nhập
   const login = useCallback(async (credentials) => {
     try {
       setLoading(true);
       console.log("Đang đăng nhập với:", credentials.email);
-
       const response = await authService.login(credentials);
-      console.log("Phản hồi đăng nhập:", response.data);
 
-      if (response && response.data && response.data.success) {
+      if (response?.data?.success) {
         const { token, customer } = response.data.data;
-
-        console.log("Đăng nhập thành công, đã nhận token:", token ? "Có" : "Không");
-        console.log("Đã nhận thông tin người dùng:", customer ? "Có" : "Không");
-
-        // QUAN TRỌNG: Thiết lập token cho tất cả request tiếp theo
+        // Thiết lập header cho các request sau
         clientInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-        // Lưu thông tin vào localStorage
+        // Lưu token và thông tin người dùng vào localStorage
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(customer));
-
-        console.log("Đã lưu token và thông tin người dùng vào localStorage");
-
-        // Kiểm tra lại để xác nhận
-        const savedToken = localStorage.getItem('token');
-        const savedUser = localStorage.getItem('user');
-        console.log("Token đã lưu trong localStorage:", savedToken ? "Có" : "Không");
-        console.log("User đã lưu trong localStorage:", savedUser ? "Có" : "Không");
-
+        // Cập nhật state
         setUser(customer);
         setIsAuthenticated(true);
-
         message.success(response.data.message || 'Đăng nhập thành công!');
         return { success: true };
-      } else {
-        return {
-          success: false,
-          message: response?.data?.message || 'Đăng nhập thất bại'
-        };
       }
+
+      return { success: false, message: response?.data?.message || 'Đăng nhập thất bại' };
     } catch (error) {
       console.error('Lỗi đăng nhập:', error);
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.'
-      };
+      return { success: false, message: error.response?.data?.message || 'Đăng nhập thất bại' };
     } finally {
       setLoading(false);
     }
@@ -132,29 +114,19 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       // Loại bỏ trường passwordConfirm nếu có
-      const { passwordConfirm, ...registerData } = userData;
+      const { passwordConfirm, ...data } = userData;
+      const response = await authService.register(data);
 
-      const response = await authService.register(registerData);
-
-      if (response && response.data && response.data.success) {
-
+      if (response?.data?.success) {
         message.success(response.data.message || 'Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.');
         return { success: true };
       } else {
         message.error(response?.data?.message || 'Đăng ký thất bại');
-        return {
-          success: false,
-          message: response?.data?.message || 'Đăng ký thất bại'
-        };
+        return { success: false, message: response?.data?.message || 'Đăng ký thất bại' };
       }
     } catch (error) {
       console.error('Register error:', error);
-      let errorMsg = 'Đăng ký thất bại. Vui lòng thử lại.';
-
-      if (error.response && error.response.data) {
-        errorMsg = error.response.data.message || errorMsg;
-      }
-
+      const errorMsg = error.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
       message.error(errorMsg);
       return { success: false, message: errorMsg };
     } finally {
@@ -167,17 +139,15 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       const response = await authService.requestPasswordReset(email);
-
-      if (response && response.data && response.data.success) {
+      if (response?.data?.success) {
         message.success(response.data.message || 'Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn');
         return { success: true };
       } else {
         message.info('Nếu email tồn tại, hướng dẫn đặt lại mật khẩu sẽ được gửi');
-        return { success: true }; // Vẫn trả về thành công vì lý do bảo mật
+        return { success: true }; // Trả về success vì lý do bảo mật
       }
     } catch (error) {
       console.error('Forgot password error:', error);
-      // API trả về thành công ngay cả khi email không tồn tại (vì lý do bảo mật)
       message.info('Nếu email tồn tại, hướng dẫn đặt lại mật khẩu sẽ được gửi');
       return { success: true };
     } finally {
@@ -190,25 +160,16 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       const response = await authService.resetPassword(token, newPassword);
-
-      if (response && response.data && response.data.success) {
+      if (response?.data?.success) {
         message.success(response.data.message || 'Mật khẩu đã được đặt lại thành công');
         return { success: true };
       } else {
         message.error(response?.data?.message || 'Đặt lại mật khẩu thất bại');
-        return {
-          success: false,
-          message: response?.data?.message || 'Đặt lại mật khẩu thất bại'
-        };
+        return { success: false, message: response?.data?.message || 'Đặt lại mật khẩu thất bại' };
       }
     } catch (error) {
       console.error('Reset password error:', error);
-      let errorMsg = 'Đặt lại mật khẩu thất bại. Vui lòng thử lại.';
-
-      if (error.response && error.response.data) {
-        errorMsg = error.response.data.message || errorMsg;
-      }
-
+      const errorMsg = error.response?.data?.message || 'Đặt lại mật khẩu thất bại. Vui lòng thử lại.';
       message.error(errorMsg);
       return { success: false, message: errorMsg };
     } finally {
@@ -221,25 +182,16 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       const response = await authService.resendVerificationEmail();
-
-      if (response && response.data && response.data.success) {
+      if (response?.data?.success) {
         message.success(response.data.message || 'Email xác thực đã được gửi lại');
         return { success: true };
       } else {
         message.error(response?.data?.message || 'Không thể gửi lại email xác thực');
-        return {
-          success: false,
-          message: response?.data?.message || 'Không thể gửi lại email xác thực'
-        };
+        return { success: false, message: response?.data?.message || 'Không thể gửi lại email xác thực' };
       }
     } catch (error) {
       console.error('Resend verification email error:', error);
-      let errorMsg = 'Không thể gửi lại email xác thực. Vui lòng thử lại.';
-
-      if (error.response && error.response.data) {
-        errorMsg = error.response.data.message || errorMsg;
-      }
-
+      const errorMsg = error.response?.data?.message || 'Không thể gửi lại email xác thực. Vui lòng thử lại.';
       message.error(errorMsg);
       return { success: false, message: errorMsg };
     } finally {
@@ -247,62 +199,27 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Đăng xuất
-  const logout = useCallback(() => {
-    handleLogout();
-    message.success('Đăng xuất thành công!');
-    return { success: true };
-  }, []);
-
-  // Xử lý đăng xuất
-  const handleLogout = () => {
-    console.log("Thực hiện đăng xuất...");
-
-    // Xóa header Authorization
-    delete clientInstance.defaults.headers.common['Authorization'];
-
-    // Xóa thông tin đăng nhập
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-
-    // Cập nhật state
-    setUser(null);
-    setIsAuthenticated(false);
-
-    console.log("Đăng xuất hoàn tất");
-  };
-
   // Cập nhật thông tin người dùng
   const updateProfile = useCallback(async (userData) => {
     try {
       setLoading(true);
       const response = await authService.updateUserProfile(userData);
-
-      if (response && response.data && response.data.success) {
-        // Cập nhật user state
-        setUser(prev => ({ ...prev, ...response.data.data }));
-
+      if (response?.data?.success) {
+        const updatedUser = response.data.data;
+        // Cập nhật state người dùng
+        setUser(prev => ({ ...prev, ...updatedUser }));
         // Cập nhật localStorage
-        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-        localStorage.setItem('user', JSON.stringify({ ...storedUser, ...response.data.data }));
-
+        const storedUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : {};
+        localStorage.setItem('user', JSON.stringify({ ...storedUser, ...updatedUser }));
         message.success(response.data.message || 'Cập nhật thông tin thành công');
         return { success: true };
       } else {
         message.error(response?.data?.message || 'Cập nhật thông tin thất bại');
-        return {
-          success: false,
-          message: response?.data?.message || 'Cập nhật thông tin thất bại'
-        };
+        return { success: false, message: response?.data?.message || 'Cập nhật thông tin thất bại' };
       }
     } catch (error) {
       console.error('Update profile error:', error);
-      let errorMsg = 'Cập nhật thông tin thất bại. Vui lòng thử lại.';
-
-      if (error.response && error.response.data) {
-        errorMsg = error.response.data.message || errorMsg;
-      }
-
+      const errorMsg = error.response?.data?.message || 'Cập nhật thông tin thất bại. Vui lòng thử lại.';
       message.error(errorMsg);
       return { success: false, message: errorMsg };
     } finally {
@@ -315,25 +232,16 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       const response = await authService.changePassword(passwordData);
-
-      if (response && response.data && response.data.success) {
+      if (response?.data?.success) {
         message.success(response.data.message || 'Đổi mật khẩu thành công');
         return { success: true };
       } else {
         message.error(response?.data?.message || 'Đổi mật khẩu thất bại');
-        return {
-          success: false,
-          message: response?.data?.message || 'Đổi mật khẩu thất bại'
-        };
+        return { success: false, message: response?.data?.message || 'Đổi mật khẩu thất bại' };
       }
     } catch (error) {
       console.error('Change password error:', error);
-      let errorMsg = 'Đổi mật khẩu thất bại. Vui lòng thử lại.';
-
-      if (error.response && error.response.data) {
-        errorMsg = error.response.data.message || errorMsg;
-      }
-
+      const errorMsg = error.response?.data?.message || 'Đổi mật khẩu thất bại. Vui lòng thử lại.';
       message.error(errorMsg);
       return { success: false, message: errorMsg };
     } finally {
@@ -341,7 +249,13 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Value cho context
+  // Đăng xuất công khai
+  const logout = useCallback(() => {
+    handleLogout();
+    message.success('Đăng xuất thành công!');
+    return { success: true };
+  }, [handleLogout]);
+
   const value = {
     user,
     loading,
@@ -353,7 +267,7 @@ export const AuthProvider = ({ children }) => {
     resetPassword,
     updateProfile,
     changePassword,
-    resendVerificationEmail
+    resendVerificationEmail,
   };
 
   return (
@@ -363,7 +277,7 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook để sử dụng context
+// Custom hook sử dụng context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

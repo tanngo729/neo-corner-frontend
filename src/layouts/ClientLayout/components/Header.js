@@ -6,7 +6,6 @@ import {
   ShoppingCartOutlined,
   UserOutlined,
   SearchOutlined,
-  BellOutlined,
   HomeOutlined,
   AppstoreOutlined,
   DownOutlined
@@ -15,6 +14,7 @@ import LogoSvg from './LogoSvg';
 import CustomButton from '../../../components/common/buttoncustom/CustomButton';
 import SearchInput from '../../../components/client/search/SearchInput';
 import MiniCart from '../../../components/client/cart/MiniCart';
+import NotificationDropdown from '../../../components/common/notification/NotificationDropdown';
 import { useCart } from '../../../contexts/CartContext';
 import '../styles/Header.scss';
 import '../styles/UserDropdown.scss';
@@ -37,10 +37,8 @@ const Header = forwardRef(({
   const navigate = useNavigate();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [miniCartVisible, setMiniCartVisible] = useState(false);
-  const [notificationVisible, setNotificationVisible] = useState(false);
   const userDropdownRef = useRef(null);
   const cartRef = useRef(null);
-  const notificationRef = useRef(null);
 
   // Kiểm tra nếu đang ở mobile view
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -65,9 +63,6 @@ const Header = forwardRef(({
       }
       if (cartRef.current && !cartRef.current.contains(event.target)) {
         setMiniCartVisible(false);
-      }
-      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
-        setNotificationVisible(false);
       }
     };
 
@@ -181,15 +176,9 @@ const Header = forwardRef(({
 
           {/* Actions */}
           <div className="header-actions">
-            {/* Notification Button - New Addition */}
-            <div className="action-badge" ref={notificationRef}>
-              <CustomButton
-                type="text"
-                icon={<BellOutlined />}
-                className="action-btn"
-                onClick={() => setNotificationVisible(!notificationVisible)}
-              />
-              {/* Optional: Add notification count badge here */}
+            {/* Notification Dropdown */}
+            <div className="action-badge">
+              <NotificationDropdown />
             </div>
 
             {/* Cart Button */}

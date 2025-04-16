@@ -31,6 +31,8 @@ import CustomerListPage from './pages/admin/customers/CustomerListPage';
 import CustomerFormPage from './pages/admin/customers/CustomerFormPage';
 import ProfilePage from './pages/admin/profile/ProfilePage';
 import SystemSettingsPage from './pages/admin/settings/SystemSettingsPage';
+import OrderListPage from './pages/admin/orders/OrderListPage';
+import OrderDetailPage from './pages/admin/orders/OrderDetailPage';
 
 // Client pages
 import HomePage from './pages/client/Home/HomePage';
@@ -47,11 +49,10 @@ import ResetPasswordPage from './pages/client/Auth/ResetPasswordPage/ResetPasswo
 import VerifySuccessPage from './pages/client/Auth/VerifySuccessPage/VerifySuccessPage';
 import VerifyEmailRequiredPage from './pages/client/Auth/VerifyEmailRequiredPage/VerifyEmailRequiredPage';
 import VerifyEmailPage from './pages/client/Auth/VerifyEmailPage/VerifyEmailPage';
-// import OrderSuccessPage from './pages/client/OrderSuccessPage/OrderSuccessPage';
-// import ClientProfilePage from './pages/client/profile/ProfilePage';
-// import OrdersPage from './pages/client/orders/OrdersPage';
-// import OrderDetailPage from './pages/client/orders/OrderDetailPage';
+import ClientOrdersPage from './pages/client/orders/OrdersPage';
+import ClientOrderDetailPage from './pages/client/orders/OrderDetailPage';
 import NotFoundPage from './pages/client/404/NotFoundPage';
+import NotificationsPage from './pages/client/NotificationsPage/NotificationsPage';
 
 const AppRoutes = () => {
   return (
@@ -96,6 +97,18 @@ const AppRoutes = () => {
         <Route path="categories/edit/:id" element={
           <PermissionCheck permission="categories.edit">
             <CategoryFormPage />
+          </PermissionCheck>
+        } />
+
+        {/* Routes đơn hàng - Thêm mới */}
+        <Route path="orders" element={
+          <PermissionCheck permission="orders.view">
+            <OrderListPage />
+          </PermissionCheck>
+        } />
+        <Route path="orders/:id" element={
+          <PermissionCheck permission="orders.view">
+            <OrderDetailPage />
           </PermissionCheck>
         } />
 
@@ -199,6 +212,23 @@ const AppRoutes = () => {
         <Route path="/checkout" element={
           <ClientProtectedRoute requireVerified={true}>
             <CheckoutPage />
+          </ClientProtectedRoute>
+        } />
+
+        {/* Routes quản lý đơn hàng client - Thêm mới */}
+        <Route path="/orders" element={
+          <ClientProtectedRoute>
+            <ClientOrdersPage />
+          </ClientProtectedRoute>
+        } />
+        <Route path="/orders/:id" element={
+          <ClientProtectedRoute>
+            <ClientOrderDetailPage />
+          </ClientProtectedRoute>
+        } />
+        <Route path="/notifications" element={
+          <ClientProtectedRoute>
+            <NotificationsPage />
           </ClientProtectedRoute>
         } />
 
