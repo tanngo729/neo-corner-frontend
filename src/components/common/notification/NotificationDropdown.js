@@ -18,11 +18,13 @@ const NotificationDropdown = ({ isAdminProp }) => {
     unreadCount = 0,
     markAllAsRead,
     markAsRead,
+    deleteNotification,
     clearAllNotifications,
     getStatusText,
     refreshNotifications,
     isAdmin: contextIsAdmin,
-    loading
+    loading,
+    actionLoading
   } = useNotification();
 
   // Sử dụng isAdmin từ prop nếu được cung cấp, nếu không lấy từ context
@@ -53,17 +55,26 @@ const NotificationDropdown = ({ isAdminProp }) => {
         return;
       }
 
-      // Đánh dấu đã đọc
-      await markAsRead(notificationId);
+      // Đánh dấu là đã đọc nếu chưa đọc
+      if (!notification.read) {
+        await markAsRead(notificationId);
+      }
 
-      // Chuyển hướng đến trang chi tiết đơn hàng nếu có
-      if (notification.orderId) {
-        const route = isAdmin
-          ? `/admin/orders/${notification.orderId}`
-          : `/orders/${notification.orderId}`;
-
-        console.log(`[NotificationDropdown] Chuyển hướng đến:`, route);
+      // Xử lý khác nhau cho thông báo gom nhóm
+      if (notification.type === 'grouped') {
+        // Mở trang danh sách đơn hàng với bộ lọc phù hợp nếu có
+        const route = isAdmin ? '/admin/orders' : '/orders';
         navigate(route);
+      }
+      // Điều hướng dựa trên loại thông báo thông thường
+      else if (notification.type === 'order-status-update' && notification.orderId) {
+        navigate(isAdmin ? `/admin/orders/${notification.orderId}` : `/orders/${notification.orderId}`);
+      } else if (notification.type === 'new-order' && notification.orderId) {
+        navigate(isAdmin ? `/admin/orders/${notification.orderId}` : `/orders/${notification.orderId}`);
+      } else if (notification.type === 'cancelled-by-user' && notification.orderId) {
+        navigate(isAdmin ? `/admin/orders/${notification.orderId}` : `/orders/${notification.orderId}`);
+      } else if (notification.orderId) {
+        navigate(isAdmin ? `/admin/orders/${notification.orderId}` : `/orders/${notification.orderId}`);
       }
 
       setVisible(false);
@@ -79,7 +90,6 @@ const NotificationDropdown = ({ isAdminProp }) => {
       e.stopPropagation();
       console.log(`[NotificationDropdown] Đánh dấu tất cả đã đọc`);
       await markAllAsRead();
-      message.success('Đã đánh dấu tất cả thông báo là đã đọc');
     } catch (error) {
       console.error('[NotificationDropdown] Lỗi khi đánh dấu đã đọc:', error);
       message.error('Không thể đánh dấu đã đọc. Vui lòng thử lại.');
@@ -105,6 +115,83 @@ const NotificationDropdown = ({ isAdminProp }) => {
     }
   };
 
+  // Hàm xử lý việc xóa một thông báo
+  const handleDeleteNotification = async (e, notification) => {
+    e.stopPropagation();
+    try {
+      await deleteNotification(notification._id);
+    } catch (error) {
+      console.error('[NotificationDropdown] Lỗi khi xóa thông báo:', error);
+      message.error('Không thể xóa thông báo. Vui lòng thử lại.');
+    }
+  };
+
+  // Render thông báo phù hợp với loại
+  const renderNotificationContent = (notification) => {
+    // Xử lý thông báo gom nhóm
+    if (notification.type === 'grouped') {
+      return (
+        <div className="notification-content">
+          <Text strong>{notification.title}</Text>
+          <div className="notification-desc">{notification.description}</div>
+
+          {/* Hiển thị danh sách các mục con */}
+          {notification.items && notification.items.length > 0 && (
+            <div className="notification-sublist">
+              {notification.items.slice(0, 3).map((item, index) => (
+                <div key={index} className="notification-subitem">
+                  #{item.orderCode}
+                </div>
+              ))}
+              {notification.items.length > 3 && (
+                <div className="notification-more">
+                  +{notification.items.length - 3} thông báo khác
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="notification-time">
+            {moment(notification.createdAt).fromNow()}
+          </div>
+        </div>
+      );
+    }
+
+    // Xử lý các loại thông báo thông thường
+    return (
+      <div className="notification-content">
+        <div className="notification-title">
+          <Text strong>{notification.title}</Text>
+          {notification.status && (
+            <Tag color={getNotificationStatusColor(notification.status)}>
+              {getStatusText(notification.status)}
+            </Tag>
+          )}
+        </div>
+        <div className="notification-desc">{notification.description}</div>
+        <div className="notification-time">
+          {moment(notification.createdAt).fromNow()}
+        </div>
+      </div>
+    );
+  };
+
+  // Xác định màu sắc cho trạng thái
+  const getNotificationStatusColor = (status) => {
+    switch (status) {
+      case 'PENDING': return 'processing';
+      case 'AWAITING_PAYMENT': return 'warning';
+      case 'PROCESSING': return 'blue';
+      case 'SHIPPING': return 'cyan';
+      case 'DELIVERED': return 'green';
+      case 'COMPLETED': return 'success';
+      case 'CANCELLED': return 'error';
+      case 'REFUNDED': return 'volcano';
+      default: return 'default';
+    }
+  };
+
   // Nội dung của Popover
   const notificationContent = (
     <div className="notification-dropdown">
@@ -114,7 +201,8 @@ const NotificationDropdown = ({ isAdminProp }) => {
           size="small"
           onClick={handleMarkAllAsRead}
           icon={<CheckOutlined />}
-          disabled={unreadCount === 0}
+          disabled={unreadCount === 0 || actionLoading}
+          loading={actionLoading}
         >
           Đánh dấu đã đọc
         </Button>
@@ -125,6 +213,7 @@ const NotificationDropdown = ({ isAdminProp }) => {
           onClick={handleRefresh}
           icon={<ReloadOutlined spin={refreshing || loading} />}
           title="Làm mới thông báo"
+          disabled={loading || refreshing}
         >
           Làm mới
         </Button>
@@ -135,10 +224,9 @@ const NotificationDropdown = ({ isAdminProp }) => {
           onClick={(e) => {
             e.stopPropagation();
             clearAllNotifications();
-            message.success('Đã xóa tất cả thông báo');
           }}
           icon={<DeleteOutlined />}
-          disabled={notifications.length === 0}
+          disabled={notifications.length === 0 || actionLoading}
           danger
         >
           Xóa tất cả
@@ -158,14 +246,16 @@ const NotificationDropdown = ({ isAdminProp }) => {
               <List.Item
                 className={`notification-item ${notification.read ? '' : 'unread'}`}
                 onClick={() => handleNotificationClick(notification)}
+                actions={[
+                  <Button
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={(e) => handleDeleteNotification(e, notification)}
+                  />
+                ]}
               >
-                <div className="notification-content">
-                  <Text strong>{notification.title}</Text>
-                  <div className="notification-desc">{notification.description}</div>
-                  <div className="notification-time">
-                    {moment(notification.createdAt).fromNow()}
-                  </div>
-                </div>
+                {renderNotificationContent(notification)}
               </List.Item>
             )}
           />

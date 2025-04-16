@@ -1,9 +1,10 @@
 // src/contexts/NotificationContext.js
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { notification } from 'antd';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { notification, message } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSocket } from './SocketContext';
 import moment from 'moment';
+import { debounce } from 'lodash';
 import 'moment/locale/vi';
 import clientNotificationService from '../services/client/notificationService';
 import adminNotificationService from '../services/admin/notificationService';
@@ -16,23 +17,20 @@ export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const { socket, connected } = useSocket();
   const navigate = useNavigate();
   const location = useLocation();
 
   // Xác định môi trường
   const isAdmin = location.pathname.startsWith('/admin');
-  console.log(`[Notification] Path: ${location.pathname}, isAdmin: ${isAdmin}`);
 
   // Thay vì sử dụng hooks trực tiếp, lấy thông tin từ localStorage
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Thêm log state
-  useEffect(() => {
-    console.log(`[Notification] State: authenticated=${isAuthenticated}, socket=${!!socket}, connected=${connected}`);
-    if (user) console.log(`[Notification] User ID: ${user._id || user.id}`);
-  }, [isAuthenticated, socket, connected, user]);
+  // Mảng lưu trữ các thông báo đã được xử lý 
+  const processedNotifications = React.useRef(new Set());
 
   // Lấy user từ localStorage khi component được mount
   useEffect(() => {
@@ -47,14 +45,12 @@ export const NotificationProvider = ({ children }) => {
         const userData = JSON.parse(savedUser);
         setUser(userData);
         setIsAuthenticated(true);
-        console.log(`[Notification] Đã lấy thông tin người dùng từ localStorage: ${userData._id || userData.id}`);
       } catch (error) {
         console.error('Lỗi khi đọc thông tin người dùng:', error);
       }
     } else {
       setUser(null);
       setIsAuthenticated(false);
-      console.log(`[Notification] Không có thông tin người dùng trong localStorage`);
     }
   }, [isAdmin]);
 
@@ -72,19 +68,42 @@ export const NotificationProvider = ({ children }) => {
     }
   }, []);
 
+  // Hàm tạo khóa cho thông báo gom nhóm và kiểm tra trùng lặp
+  const createNotificationKey = useCallback((notification) => {
+    if (!notification) return '';
+    return `${notification.type}-${notification.orderId || ''}-${notification.status || ''}`;
+  }, []);
+
+  // Lọc thông báo trùng lặp trong thời gian ngắn
+  const shouldAddNotification = useCallback((newNotification) => {
+    // Nếu không có thông báo hoặc có ít hơn 3 thông báo, luôn thêm vào
+    if (!notifications || notifications.length < 3) return true;
+
+    // Tạo key cho thông báo mới
+    const newKey = createNotificationKey(newNotification);
+
+    // Nếu không có orderId, luôn thêm vào (là thông báo hệ thống)
+    if (!newNotification.orderId) return true;
+
+    // Kiểm tra có thông báo tương tự gần đây không (trong 5 thông báo gần nhất)
+    const recentNotifications = notifications.slice(0, 5);
+    const hasSimilar = recentNotifications.some(n => {
+      const existingKey = createNotificationKey(n);
+      return existingKey === newKey &&
+        moment(newNotification.createdAt || new Date()).diff(moment(n.createdAt), 'seconds') < 5;
+    });
+
+    return !hasSimilar;
+  }, [notifications, createNotificationKey]);
+
   // Hàm lấy thông báo từ API
   const fetchNotifications = useCallback(async () => {
-    if (!isAuthenticated) {
-      console.log('[Notification] Không fetch API vì chưa xác thực');
-      return;
-    }
+    if (!isAuthenticated) return;
 
     try {
       setLoading(true);
-      console.log('[Notification] Đang fetch thông báo...');
 
       const response = await notificationService.getNotifications({ limit: 20 });
-      console.log('[Notification] API response:', response);
 
       let notificationsData = [];
 
@@ -100,9 +119,27 @@ export const NotificationProvider = ({ children }) => {
         notificationsData = response;
       }
 
-      console.log('[Notification] Đã nhận:', notificationsData.length, 'thông báo');
-
       if (notificationsData.length > 0) {
+        // Cập nhật trạng thái đã đọc từ localStorage
+        const readNotificationsKey = isAdmin ? 'adminReadNotifications' : 'clientReadNotifications';
+        const readNotificationsStr = localStorage.getItem(readNotificationsKey);
+
+        if (readNotificationsStr) {
+          try {
+            const readNotifications = JSON.parse(readNotificationsStr);
+
+            // Áp dụng trạng thái đã đọc vào dữ liệu mới
+            notificationsData = notificationsData.map(n => {
+              if (readNotifications.includes(n._id)) {
+                return { ...n, read: true };
+              }
+              return n;
+            });
+          } catch (e) {
+            console.error('Lỗi khi đọc thông báo đã đọc từ localStorage:', e);
+          }
+        }
+
         setNotifications(notificationsData);
         setUnreadCount(notificationsData.filter(n => !n.read).length);
       }
@@ -112,6 +149,14 @@ export const NotificationProvider = ({ children }) => {
       setLoading(false);
     }
   }, [isAdmin, isAuthenticated, notificationService]);
+
+  // Debounce fetchNotifications để tránh gọi quá nhiều lần
+  const debouncedFetchNotifications = useCallback(
+    debounce(() => {
+      fetchNotifications();
+    }, 300),
+    [fetchNotifications]
+  );
 
   // Khởi tạo - lấy thông báo từ localStorage và API
   useEffect(() => {
@@ -128,7 +173,6 @@ export const NotificationProvider = ({ children }) => {
         const parsed = JSON.parse(savedNotifications);
         setNotifications(parsed);
         setUnreadCount(parseInt(savedUnreadCount || '0', 10));
-        console.log(`[Notification] Đã tải ${parsed.length} thông báo từ localStorage`);
       }
 
       // Fetch từ API sau một khoảng thời gian ngắn để đảm bảo auth đã hoàn tất
@@ -149,45 +193,160 @@ export const NotificationProvider = ({ children }) => {
 
     localStorage.setItem(storageKey, JSON.stringify(notifications.slice(0, 50)));
     localStorage.setItem(countKey, unreadCount.toString());
-    console.log(`[Notification] Đã lưu ${notifications.length} thông báo vào localStorage`);
   }, [notifications, unreadCount, isAdmin]);
 
-  // Debug - đăng ký tất cả các sự kiện socket
-  useEffect(() => {
-    if (!socket) return;
+  // Xử lý thông báo gom nhóm
+  const handleGroupedNotification = useCallback((data) => {
+    if (!data || !data.id) return;
 
-    const handleAnyEvent = (eventName, ...args) => {
-      console.log(`[Notification] Socket event "${eventName}":`, args[0]);
+    // Kiểm tra nếu đã xử lý thông báo này
+    if (processedNotifications.current.has(data.id)) return;
+    processedNotifications.current.add(data.id);
+
+    // Tạo thông báo tổng hợp mới để hiển thị
+    const groupedNotification = {
+      _id: data.id,
+      title: data.title,
+      description: data.description,
+      type: 'grouped',
+      originalType: data.originalType,
+      count: data.count,
+      items: data.items || [],
+      createdAt: data.timestamp || new Date().toISOString(),
+      read: false
     };
 
-    socket.onAny(handleAnyEvent);
-
-    return () => {
-      socket.offAny(handleAnyEvent);
-    };
-  }, [socket]);
-
-  // Lắng nghe sự kiện socket
-  useEffect(() => {
-    if (!socket) {
-      console.log('[Notification] Socket chưa khởi tạo, không thể lắng nghe sự kiện');
+    // Kiểm tra nếu đã có thông báo tương tự gần đây
+    if (!shouldAddNotification(groupedNotification)) {
       return;
     }
 
-    console.log(`[Notification] Đang thiết lập lắng nghe sự kiện socket (isAdmin: ${isAdmin})`);
+    // Thêm vào danh sách thông báo
+    setNotifications(prev => [groupedNotification, ...prev]);
+    setUnreadCount(count => count + 1);
 
-    // Xử lý đơn hàng mới (cho admin)
+    // Phát âm thanh thông báo
+    playNotificationSound();
+
+    // Hiển thị thông báo
+    notification.info({
+      message: data.title,
+      description: data.description,
+      duration: 4
+    });
+  }, [playNotificationSound, shouldAddNotification]);
+
+  // Xử lý thông báo đã đọc từ thiết bị khác
+  const handleRemoteNotificationRead = useCallback((data) => {
+    if (!data.id) return;
+
+    // Cập nhật state
+    setNotifications(prev => {
+      const updated = prev.map(n =>
+        n._id === data.id ? { ...n, read: true } : n
+      );
+      return updated;
+    });
+
+    // Cập nhật lại số lượng unread
+    setUnreadCount(prev => {
+      // Kiểm tra xem thông báo có tồn tại và đang ở trạng thái chưa đọc không
+      const hasUnreadNotification = notifications.some(n => n._id === data.id && !n.read);
+      return hasUnreadNotification ? Math.max(0, prev - 1) : prev;
+    });
+
+    // Cập nhật vào localStorage
+    updateLocalStorageReadStatus(data.id);
+  }, [notifications]);
+
+  // Xử lý tất cả thông báo đã đọc
+  const handleAllNotificationsRead = useCallback(() => {
+    // Cập nhật state
+    setNotifications(prev => prev.map(notification => ({ ...notification, read: true })));
+    setUnreadCount(0);
+
+    // Cập nhật vào localStorage
+    const readNotificationsKey = isAdmin ? 'adminReadNotifications' : 'clientReadNotifications';
+    const notificationIds = notifications.map(n => n._id);
+    localStorage.setItem(readNotificationsKey, JSON.stringify(notificationIds));
+  }, [notifications, isAdmin]);
+
+  // Cập nhật trạng thái đã đọc vào localStorage
+  const updateLocalStorageReadStatus = useCallback((notificationId) => {
+    try {
+      const readNotificationsKey = isAdmin ? 'adminReadNotifications' : 'clientReadNotifications';
+      const existingRead = JSON.parse(localStorage.getItem(readNotificationsKey) || '[]');
+
+      if (!existingRead.includes(notificationId)) {
+        existingRead.push(notificationId);
+        localStorage.setItem(readNotificationsKey, JSON.stringify(existingRead));
+      }
+    } catch (e) {
+      console.error('Lỗi khi cập nhật trạng thái đã đọc:', e);
+    }
+  }, [isAdmin]);
+
+  // Xử lý khi thông báo bị xóa từ thiết bị khác
+  const handleNotificationDeleted = useCallback((data) => {
+    if (!data.id) return;
+
+    const deletedNotification = notifications.find(n => n._id === data.id);
+    const wasUnread = deletedNotification && !deletedNotification.read;
+
+    setNotifications(prev => prev.filter(notification => notification._id !== data.id));
+
+    // Cập nhật lại số lượng unread nếu thông báo bị xóa chưa đọc
+    if (wasUnread) {
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    }
+  }, [notifications]);
+
+  // Lắng nghe sự kiện socket
+  useEffect(() => {
+    if (!socket || !connected) return;
+
+    const handleStatusUpdate = (data) => {
+      // Nếu là trang admin thì bỏ qua
+      if (isAdmin) return;
+
+      // Kiểm tra nếu đã xử lý thông báo này
+      if (processedNotifications.current.has(data.notificationId || data.orderId)) return;
+      processedNotifications.current.add(data.notificationId || data.orderId);
+
+      notification.open({
+        message: 'Cập nhật đơn hàng',
+        description: `Đơn hàng #${data.orderCode} đã được cập nhật trạng thái thành ${getStatusText(data.status)}`,
+        onClick: () => navigate(`/orders/${data.orderId}`),
+        duration: 5
+      });
+
+      playNotificationSound();
+
+      const newNotification = {
+        _id: data.notificationId || `temp-${Date.now()}`,
+        type: 'order-status-update',
+        orderId: data.orderId,
+        orderCode: data.orderCode,
+        title: 'Cập nhật đơn hàng',
+        description: `Đơn hàng #${data.orderCode} cập nhật: ${getStatusText(data.status)}`,
+        status: data.status,
+        createdAt: data.timestamp || new Date().toISOString(),
+        read: false
+      };
+
+      // Kiểm tra nếu đã có thông báo tương tự gần đây
+      if (!shouldAddNotification(newNotification)) return;
+
+      setNotifications(prev => [newNotification, ...prev]);
+      setUnreadCount(count => count + 1);
+    };
+
     const handleNewOrder = (data) => {
-      console.log('[Notification] Nhận sự kiện new-order:', data);
-      if (!isAdmin) {
-        console.log('[Notification] Bỏ qua vì không phải admin');
-        return;
-      }
+      if (!isAdmin) return;
 
-      if (!data || !data.orderCode) {
-        console.log('[Notification] Dữ liệu không hợp lệ');
-        return;
-      }
+      // Kiểm tra nếu đã xử lý thông báo này
+      if (processedNotifications.current.has(data.notificationId || data.orderId)) return;
+      processedNotifications.current.add(data.notificationId || data.orderId);
 
       notification.open({
         message: data.type === 'cancelled-by-user' ? 'Đơn hàng bị hủy' : 'Đơn hàng mới',
@@ -210,150 +369,214 @@ export const NotificationProvider = ({ children }) => {
         read: false
       };
 
-      console.log('[Notification] Thêm thông báo mới:', newNotification);
+      // Kiểm tra nếu đã có thông báo tương tự gần đây
+      if (!shouldAddNotification(newNotification)) return;
+
       setNotifications(prev => [newNotification, ...prev]);
       setUnreadCount(count => count + 1);
 
       // Cập nhật từ API
-      fetchNotifications();
+      debouncedFetchNotifications();
     };
 
-    // Xử lý cập nhật trạng thái đơn hàng (cho khách hàng)
-    const handleOrderStatusUpdate = (data) => {
-      console.log('[Notification] Nhận sự kiện order-status-update:', data);
-      if (isAdmin) {
-        console.log('[Notification] Bỏ qua vì là admin');
-        return;
-      }
+    // Các listeners cho sự kiện notification
+    const listeners = {
+      // Chung cho cả admin và client
+      'grouped-notification': handleGroupedNotification,
 
-      if (!data || !data.orderCode) {
-        console.log('[Notification] Dữ liệu không hợp lệ');
-        return;
-      }
+      // Admin specific
+      'new-order': isAdmin ? handleNewOrder : null,
+      'admin-notification': isAdmin ? handleNewOrder : null,
+      'admin-notification-read': isAdmin ? handleRemoteNotificationRead : null,
+      'admin-all-notifications-read': isAdmin ? handleAllNotificationsRead : null,
+      'admin-notification-deleted': isAdmin ? handleNotificationDeleted : null,
 
-      notification.open({
-        message: 'Đơn hàng cập nhật',
-        description: `Đơn hàng #${data.orderCode} đã được cập nhật trạng thái thành ${getStatusText(data.status)}`,
-        onClick: () => navigate(`/orders/${data.orderId}`),
-        duration: 5
-      });
-
-      playNotificationSound();
-
-      const newNotification = {
-        id: Date.now(),
-        title: 'Cập nhật đơn hàng',
-        description: `Đơn hàng #${data.orderCode} cập nhật: ${getStatusText(data.status)}`,
-        time: new Date(),
-        orderId: data.orderId,
-        orderCode: data.orderCode,
-        type: 'order-status-update',
-        status: data.status,
-        read: false
-      };
-
-      console.log('[Notification] Thêm thông báo mới:', newNotification);
-      setNotifications(prev => [newNotification, ...prev]);
-      setUnreadCount(count => count + 1);
+      // Client specific
+      'order-status-update': !isAdmin ? handleStatusUpdate : null,
+      'notification-marked-read': !isAdmin ? handleRemoteNotificationRead : null,
+      'all-notifications-marked-read': !isAdmin ? handleAllNotificationsRead : null,
+      'notification-deleted': !isAdmin ? handleNotificationDeleted : null
     };
 
-    // Xử lý broadcast (cho cả admin và client)
-    const handleBroadcast = (data) => {
-      console.log('[Notification] Nhận sự kiện broadcast:', data);
-      if (data.type === 'new-order' && isAdmin) {
-        handleNewOrder(data);
+    // Register all listeners
+    Object.entries(listeners).forEach(([event, handler]) => {
+      if (handler) {
+        socket.on(event, handler);
       }
-    };
+    });
 
-    // Đăng ký lắng nghe sự kiện phù hợp
-    if (isAdmin) {
-      console.log('[Notification] Đăng ký lắng nghe sự kiện admin');
-      socket.on('new-order', handleNewOrder);
-      socket.on('admin-notification', handleNewOrder);
-    } else {
-      console.log('[Notification] Đăng ký lắng nghe sự kiện khách hàng');
-      socket.on('order-status-update', handleOrderStatusUpdate);
-      socket.on('order-status-broadcast', (data) => {
-        console.log('[Notification] Nhận order-status-broadcast:', data);
-        handleOrderStatusUpdate(data);
-      });
-    }
-
-    // Đăng ký broadcast cho cả hai loại người dùng
-    socket.on('broadcast', handleBroadcast);
-
+    // Cleanup
     return () => {
-      if (isAdmin) {
-        socket.off('new-order', handleNewOrder);
-        socket.off('admin-notification', handleNewOrder);
-      } else {
-        socket.off('order-status-update', handleOrderStatusUpdate);
-        socket.off('order-status-broadcast');
-      }
-      socket.off('broadcast', handleBroadcast);
-    };
-  }, [socket, isAdmin, navigate, playNotificationSound, fetchNotifications]);
-
-  // Thêm useEffect theo dõi isAuthenticated để tự động làm mới thông báo (cho khách hàng)
-  useEffect(() => {
-    if (isAuthenticated && !isAdmin) {
-      console.log('[Notification] Người dùng vừa đăng nhập, đang tải thông báo...');
-      fetchNotifications();
-
-      // Kiểm tra thông báo mới mỗi 30 giây
-      const autoRefreshInterval = setInterval(() => {
-        console.log('[Notification] Tự động làm mới thông báo...');
-        fetchNotifications();
-      }, 30000);
-
-      return () => {
-        clearInterval(autoRefreshInterval);
-      };
-    }
-  }, [isAuthenticated, isAdmin, fetchNotifications]);
-
-  // Hàm chủ động kiểm tra thông báo mới nhất
-  const [lastCheckTime, setLastCheckTime] = useState(new Date().toISOString());
-  const checkForNewNotifications = useCallback(async () => {
-    if (!isAuthenticated) {
-      console.log('[Notification] Không kiểm tra thông báo vì chưa đăng nhập');
-      return [];
-    }
-
-    try {
-      // Lấy thông báo mới nhất (chỉ 5 thông báo)
-      const response = await notificationService.getNotifications({
-        limit: 5,
-        after: lastCheckTime // Chỉ lấy thông báo mới so với thời điểm kiểm tra cuối
+      Object.entries(listeners).forEach(([event, handler]) => {
+        if (handler) {
+          socket.off(event, handler);
+        }
       });
 
-      if (response.success && response.data && response.data.length > 0) {
-        // Thêm thông báo mới vào đầu danh sách
-        setNotifications(prev => {
-          // Lọc các thông báo trùng lặp
-          const existingIds = prev.map(n => n._id || n.id);
-          const newNotifications = response.data.filter(n => !existingIds.includes(n._id || n.id));
+      // Reset processed notifications when unmounting to prevent memory leaks
+      processedNotifications.current.clear();
+    };
+  }, [
+    socket, isAdmin, connected, navigate, playNotificationSound,
+    debouncedFetchNotifications, shouldAddNotification,
+    handleGroupedNotification, handleRemoteNotificationRead,
+    handleAllNotificationsRead, handleNotificationDeleted
+  ]);
 
-          if (newNotifications.length > 0) {
-            console.log(`[Notification] Tìm thấy ${newNotifications.length} thông báo mới`);
-            // Cập nhật số thông báo chưa đọc
-            setUnreadCount(prevCount => prevCount + newNotifications.length);
-            // Phát âm thanh thông báo
-            playNotificationSound();
-            // Cập nhật lastCheckTime
-            setLastCheckTime(new Date().toISOString());
-            return [...newNotifications, ...prev];
-          }
-          return prev;
+  // Đánh dấu thông báo đã đọc
+  const markAsRead = useCallback(async (notificationId) => {
+    try {
+      setActionLoading(true);
+
+      // Kiểm tra xem thông báo này đã được đánh dấu đọc chưa
+      const notification = notifications.find(n => (n._id === notificationId || n.id === notificationId));
+      if (notification && notification.read) {
+        setActionLoading(false);
+        return; // Bỏ qua nếu đã đọc
+      }
+
+      // Cập nhật UI trước để tạo cảm giác phản hồi nhanh
+      setNotifications(prev =>
+        prev.map(n => (n._id === notificationId || n.id === notificationId) ? { ...n, read: true } : n)
+      );
+
+      const wasUnread = notification && !notification.read;
+      if (wasUnread) {
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+
+      // Đánh dấu đã đọc qua socket (real-time) nếu có kết nối
+      const userId = user?._id || user?.id;
+      if (userId && socket && connected) {
+        socket.emit('mark-notification-read', {
+          notificationId: notificationId,
+          userId: userId,
+          isAdmin: isAdmin
         });
       }
 
-      return response.data || [];
+      // Lưu ID thông báo đã đọc vào localStorage
+      updateLocalStorageReadStatus(notificationId);
+
+      // Đồng thời gọi API để đảm bảo dữ liệu được lưu
+      try {
+        if (isAdmin) {
+          await adminNotificationService.markAsRead([notificationId]);
+        } else {
+          await clientNotificationService.markAsRead([notificationId]);
+        }
+      } catch (apiError) {
+        console.error('Lỗi khi gọi API đánh dấu đã đọc:', apiError);
+        // Không rollback UI vì đã lưu vào localStorage
+      }
     } catch (error) {
-      console.error('Lỗi khi kiểm tra thông báo mới:', error);
-      return [];
+      console.error('Lỗi khi đánh dấu đã đọc:', error);
+      message.error('Không thể đánh dấu thông báo đã đọc');
+    } finally {
+      setActionLoading(false);
     }
-  }, [isAuthenticated, notificationService, lastCheckTime, playNotificationSound]);
+  }, [isAdmin, notifications, user, socket, connected, updateLocalStorageReadStatus]);
+
+  // Đánh dấu tất cả thông báo đã đọc
+  const markAllAsRead = useCallback(async () => {
+    try {
+      setActionLoading(true);
+
+      // Cập nhật UI trước
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+
+      // Đánh dấu tất cả đã đọc qua socket (real-time) nếu có kết nối
+      const userId = user?._id || user?.id;
+      if (userId && socket && connected) {
+        socket.emit('mark-all-notifications-read', {
+          userId: userId,
+          isAdmin: isAdmin
+        });
+      }
+
+      // Lưu tất cả ID thông báo vào localStorage
+      const readNotificationsKey = isAdmin ? 'adminReadNotifications' : 'clientReadNotifications';
+      const notificationIds = notifications.map(n => n._id);
+      localStorage.setItem(readNotificationsKey, JSON.stringify(notificationIds));
+
+      // Đồng thời gọi API để đảm bảo dữ liệu được lưu
+      if (isAdmin) {
+        const ids = notifications.filter(n => !n.read).map(n => n._id);
+        if (ids.length > 0) {
+          await adminNotificationService.markAsRead(ids);
+        }
+      } else {
+        await clientNotificationService.markAllAsRead();
+      }
+
+      message.success('Đã đánh dấu tất cả thông báo là đã đọc');
+    } catch (error) {
+      console.error('Lỗi khi đánh dấu tất cả đã đọc:', error);
+      message.error('Không thể đánh dấu tất cả thông báo đã đọc');
+
+      // Rollback UI nếu có lỗi
+      fetchNotifications();
+    } finally {
+      setActionLoading(false);
+    }
+  }, [isAdmin, notifications, user, socket, connected, fetchNotifications]);
+
+  // Xóa thông báo
+  const deleteNotification = useCallback(async (notificationId) => {
+    try {
+      setActionLoading(true);
+
+      // Kiểm tra xem thông báo chưa đọc hay đã đọc
+      const notificationToDelete = notifications.find(n => n._id === notificationId);
+      const wasUnread = notificationToDelete && !notificationToDelete.read;
+
+      // Cập nhật UI trước
+      setNotifications(prev => prev.filter(n => n._id !== notificationId));
+
+      // Cập nhật số lượng chưa đọc nếu cần
+      if (wasUnread) {
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+
+      // Cập nhật trạng thái trong localStorage
+      try {
+        const readNotificationsKey = isAdmin ? 'adminReadNotifications' : 'clientReadNotifications';
+        let existingRead = JSON.parse(localStorage.getItem(readNotificationsKey) || '[]');
+        existingRead = existingRead.filter(id => id !== notificationId);
+        localStorage.setItem(readNotificationsKey, JSON.stringify(existingRead));
+      } catch (e) {
+        console.error('Lỗi khi cập nhật localStorage:', e);
+      }
+
+      // Gọi API để xóa thông báo
+      if (isAdmin) {
+        // Admin chưa có endpoint xóa - chỉ xóa trên client
+      } else {
+        await clientNotificationService.deleteNotification(notificationId);
+      }
+
+      message.success('Đã xóa thông báo');
+    } catch (error) {
+      console.error('Lỗi khi xóa thông báo:', error);
+      message.error('Không thể xóa thông báo');
+
+      // Rollback UI nếu có lỗi
+      fetchNotifications();
+    } finally {
+      setActionLoading(false);
+    }
+  }, [isAdmin, notifications, fetchNotifications]);
+
+  // Xóa tất cả thông báo
+  const clearAllNotifications = useCallback(() => {
+    setNotifications([]);
+    setUnreadCount(0);
+    localStorage.removeItem(isAdmin ? 'adminNotifications' : 'clientNotifications');
+    localStorage.removeItem(isAdmin ? 'adminUnreadCount' : 'clientUnreadCount');
+    localStorage.removeItem(isAdmin ? 'adminReadNotifications' : 'clientReadNotifications');
+    message.success('Đã xóa tất cả thông báo');
+  }, [isAdmin]);
 
   // Chuyển mã trạng thái thành văn bản
   const getStatusText = useCallback((status) => {
@@ -370,65 +593,25 @@ export const NotificationProvider = ({ children }) => {
     return statusMap[status] || status;
   }, []);
 
-  // Đánh dấu thông báo đã đọc
-  const markAsRead = useCallback(async (notificationId) => {
-    try {
-      setLoading(true);
-      if (isAdmin) {
-        await adminNotificationService.markAsRead([notificationId]);
-      } else {
-        await clientNotificationService.markAsRead([notificationId]);
-      }
-      setNotifications(prev =>
-        prev.map(n => (n._id === notificationId || n.id === notificationId) ? { ...n, read: true } : n)
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Lỗi khi đánh dấu đã đọc:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [isAdmin]);
-
-  // Đánh dấu tất cả thông báo đã đọc
-  const markAllAsRead = useCallback(async () => {
-    try {
-      setLoading(true);
-      if (isAdmin) {
-        const ids = notifications.filter(n => !n.read).map(n => n._id);
-        if (ids.length > 0) {
-          await adminNotificationService.markAsRead(ids);
-        }
-      } else {
-        await clientNotificationService.markAllAsRead();
-      }
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-      setUnreadCount(0);
-    } catch (error) {
-      console.error('Lỗi khi đánh dấu tất cả đã đọc:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [isAdmin, notifications]);
-
-  // Xóa tất cả thông báo
-  const clearAllNotifications = useCallback(() => {
-    setNotifications([]);
-    setUnreadCount(0);
-    localStorage.removeItem(isAdmin ? 'adminNotifications' : 'clientNotifications');
-    localStorage.removeItem(isAdmin ? 'adminUnreadCount' : 'clientUnreadCount');
-  }, [isAdmin]);
+  // Sắp xếp thông báo theo thời gian - mới nhất đầu tiên
+  const sortedNotifications = useMemo(() => {
+    return [...notifications].sort((a, b) =>
+      new Date(b.createdAt || b.timestamp || Date.now()) -
+      new Date(a.createdAt || a.timestamp || Date.now())
+    );
+  }, [notifications]);
 
   const value = {
-    notifications,
+    notifications: sortedNotifications,
     unreadCount,
     loading,
+    actionLoading,
     markAsRead,
     markAllAsRead,
+    deleteNotification,
     clearAllNotifications,
     getStatusText,
     refreshNotifications: fetchNotifications,
-    checkForNewNotifications,
     isAdmin
   };
 

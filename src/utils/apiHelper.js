@@ -89,34 +89,59 @@ export const handleApiError = (error, isAdmin = false) => {
       recentErrors.delete(oldestKey);
     }
 
+    // CẬP NHẬT XỬ LÝ LỖI 401
     switch (status) {
       case 401:
         // Đối với API login, chỉ hiển thị thông báo lỗi không chuyển hướng
         if (isLoginEndpoint) {
           message.error(data.message || 'Tên đăng nhập hoặc mật khẩu không đúng', errorMessageDuration);
         }
-        // Đối với API profile, chỉ hiển thị thông báo, không chuyển hướng
-        else if (isProfileEndpoint) {
-          console.log('Lỗi profile API:', data.message || 'Phiên đăng nhập đã hết hạn');
-          message.error('Phiên đăng nhập không hợp lệ, đang sử dụng dữ liệu đã lưu', errorMessageDuration);
+        // Đối với API profile hoặc refresh token, không đăng xuất
+        else if (isProfileEndpoint || error.config?.url?.includes('/auth/refresh')) {
+          console.log('Lỗi API profile/refresh:', data.message || 'Phiên đăng nhập đã hết hạn');
+          message.warning('Đang thử kết nối lại...', 2);
+
+          // Xử lý riêng cho admin - không đăng xuất ngay
+          if (isAdmin && !isDuplicate) {
+            try {
+              // Tăng thời gian chờ trước khi đăng xuất nếu là admin
+              setTimeout(() => {
+                // Kiểm tra lại trước khi đăng xuất
+                const currentToken = localStorage.getItem('adminToken');
+                if (currentToken) {
+                  message.error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại', 3);
+                  setTimeout(() => {
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminUser');
+                    window.location.href = '/admin/login';
+                  }, 3000);
+                }
+              }, 10000); // Đợi 10 giây
+            } catch (err) {
+              console.error('Lỗi xử lý token admin:', err);
+            }
+          }
         }
-        // Bỏ qua lỗi 401 cho các request liên quan đến socket (ví dụ: socket.io)
+        // Bỏ qua lỗi 401 cho các request liên quan đến socket
         else if (error.config?.url?.includes('socket.io')) {
           console.log('Bỏ qua lỗi 401 cho request socket.io');
           // Không làm gì, bỏ qua lỗi này
         }
         else {
+          // Thời gian chờ ngắn hơn cho client
+          const waitTime = isAdmin ? 3000 : 2000;
           message.error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại', errorMessageDuration);
           setTimeout(() => {
             if (isAdmin) {
               localStorage.removeItem('adminToken');
+              localStorage.removeItem('adminUser');
               window.location.href = '/admin/login';
             } else {
               localStorage.removeItem('token');
               localStorage.removeItem('user');
               window.location.href = '/login';
             }
-          }, 2000);
+          }, waitTime);
         }
         break;
 

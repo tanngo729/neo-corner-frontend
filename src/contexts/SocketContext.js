@@ -72,6 +72,48 @@ export const SocketProvider = ({ children }) => {
       console.log(`[Socket] Nhận sự kiện "${event}":`, args[0]);
     });
 
+    // Sự kiện mới - thông báo gom nhóm
+    socket.on('grouped-notification', (data) => {
+      console.log('[Socket] Nhận thông báo gom nhóm:', data);
+      setLastEventTime(new Date());
+    });
+
+    // Sự kiện mới - thông báo đã đọc bởi admin khác
+    socket.on('admin-notification-read', (data) => {
+      console.log('[Socket] Thông báo đã được đọc bởi admin khác:', data);
+      setLastEventTime(new Date());
+    });
+
+    // Sự kiện mới - tất cả thông báo đã đọc
+    socket.on('admin-all-notifications-read', (data) => {
+      console.log('[Socket] Tất cả thông báo đã được đọc bởi admin:', data);
+      setLastEventTime(new Date());
+    });
+
+    // Sự kiện mới - thông báo đã bị xóa
+    socket.on('admin-notification-deleted', (data) => {
+      console.log('[Socket] Thông báo đã bị xóa:', data);
+      setLastEventTime(new Date());
+    });
+
+    // Sự kiện mới - khách hàng: thông báo đã đọc
+    socket.on('notification-marked-read', (data) => {
+      console.log('[Socket] Thông báo đã được đọc:', data);
+      setLastEventTime(new Date());
+    });
+
+    // Sự kiện mới - khách hàng: tất cả thông báo đã đọc
+    socket.on('all-notifications-marked-read', (data) => {
+      console.log('[Socket] Tất cả thông báo đã được đọc:', data);
+      setLastEventTime(new Date());
+    });
+
+    // Sự kiện mới - khách hàng: thông báo đã bị xóa
+    socket.on('notification-deleted', (data) => {
+      console.log('[Socket] Thông báo đã bị xóa:', data);
+      setLastEventTime(new Date());
+    });
+
     return () => {
       isMountedRef.current = false;
       // Hủy bỏ timer reconnect khi unmount
@@ -195,6 +237,47 @@ export const SocketProvider = ({ children }) => {
     }
   }, []);
 
+  // Đánh dấu thông báo đã đọc qua socket
+  const markNotificationRead = useCallback((notificationId, userId, isAdmin = false) => {
+    if (!socketRef.current || !connected) {
+      console.log('[Socket] Không thể đánh dấu đã đọc - socket chưa kết nối');
+      return false;
+    }
+
+    try {
+      socketRef.current.emit('mark-notification-read', {
+        notificationId,
+        userId,
+        isAdmin
+      });
+      console.log(`[Socket] Đã gửi yêu cầu đánh dấu đã đọc thông báo ${notificationId}`);
+      return true;
+    } catch (error) {
+      console.error('[Socket] Lỗi khi đánh dấu thông báo đã đọc:', error);
+      return false;
+    }
+  }, [connected]);
+
+  // Đánh dấu tất cả thông báo đã đọc qua socket
+  const markAllNotificationsRead = useCallback((userId, isAdmin = false) => {
+    if (!socketRef.current || !connected) {
+      console.log('[Socket] Không thể đánh dấu tất cả đã đọc - socket chưa kết nối');
+      return false;
+    }
+
+    try {
+      socketRef.current.emit('mark-all-notifications-read', {
+        userId,
+        isAdmin
+      });
+      console.log(`[Socket] Đã gửi yêu cầu đánh dấu tất cả thông báo đã đọc`);
+      return true;
+    } catch (error) {
+      console.error('[Socket] Lỗi khi đánh dấu tất cả thông báo đã đọc:', error);
+      return false;
+    }
+  }, [connected]);
+
   const value = {
     socket: socketRef.current,
     connected,
@@ -202,7 +285,9 @@ export const SocketProvider = ({ children }) => {
     checkConnection,
     reconnect,
     emitEvent,
-    lastEventTime
+    lastEventTime,
+    markNotificationRead,
+    markAllNotificationsRead
   };
 
   return (

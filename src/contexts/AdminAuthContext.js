@@ -11,6 +11,44 @@ export const AdminAuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [permissions, setPermissions] = useState([]);
 
+  // Thêm hàm này để kiểm tra token sắp hết hạn
+  const isTokenExpiring = useCallback((token) => {
+    if (!token) return false;
+
+    try {
+      // Decode token (không cần verify)
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const { exp } = JSON.parse(jsonPayload);
+
+      if (!exp) return false;
+
+      // Kiểm tra nếu token sẽ hết hạn trong 24 giờ tới
+      const now = Math.floor(Date.now() / 1000);
+      return exp - now < 24 * 60 * 60;
+    } catch (error) {
+      console.error('Lỗi khi kiểm tra token expiration:', error);
+      return false;
+    }
+  }, []);
+
+  // Lưu token vào localStorage với thời hạn dài
+  const saveTokenWithLongExpiry = useCallback((token, userData) => {
+    if (!token || !userData) return;
+
+    localStorage.setItem('adminToken', token);
+    localStorage.setItem('adminUser', JSON.stringify(userData));
+
+    // Lưu thêm thời gian token được tạo
+    localStorage.setItem('adminTokenCreatedAt', Date.now().toString());
+  }, []);
+
   // Khởi tạo: đọc token và thông tin user từ localStorage và thiết lập header
   useEffect(() => {
     const savedToken = localStorage.getItem('adminToken');
@@ -66,7 +104,33 @@ export const AdminAuthProvider = ({ children }) => {
     }
   }, [token, checkCurrentUser]);
 
-  // Hàm đăng nhập
+  // Sử dụng useEffect để kiểm tra token định kỳ - ĐÃ THÊM MỚI
+  useEffect(() => {
+    if (!token) return;
+
+    const checkToken = async () => {
+      // Nếu token sắp hết hạn, kiểm tra xem có thể tự động làm mới không
+      if (isTokenExpiring(token)) {
+        try {
+          console.log('Token admin sắp hết hạn, kiểm tra hồ sơ...');
+          // Gọi API profile để xác minh token vẫn còn hợp lệ
+          await checkCurrentUser();
+        } catch (error) {
+          console.error('Lỗi khi kiểm tra token admin:', error);
+        }
+      }
+    };
+
+    // Kiểm tra ngay khi token thay đổi
+    checkToken();
+
+    // Thiết lập kiểm tra định kỳ (mỗi 24 giờ)
+    const interval = setInterval(checkToken, 24 * 60 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [token, isTokenExpiring, checkCurrentUser]);
+
+  // Hàm đăng nhập - ĐÃ CẬP NHẬT
   const login = useCallback(async (credentials) => {
     try {
       setLoading(true);
@@ -88,9 +152,8 @@ export const AdminAuthProvider = ({ children }) => {
         setToken(authToken);
         setPermissions(userData.role?.permissions || []);
 
-        // Lưu vào localStorage
-        localStorage.setItem('adminUser', JSON.stringify(userData));
-        localStorage.setItem('adminToken', authToken);
+        // Lưu vào localStorage với thời hạn dài
+        saveTokenWithLongExpiry(authToken, userData);
 
         // Thiết lập header Authorization cho adminInstance
         adminInstance.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
@@ -109,7 +172,7 @@ export const AdminAuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [saveTokenWithLongExpiry]);
 
   // Hàm đăng xuất
   const logout = useCallback(async () => {
