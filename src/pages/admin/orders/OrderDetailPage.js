@@ -41,7 +41,6 @@ const OrderDetailPage = () => {
         message.error('Không thể lấy thông tin đơn hàng');
       }
     } catch (error) {
-      console.error('Lỗi khi lấy thông tin đơn hàng:', error);
       message.error('Đã xảy ra lỗi khi tải dữ liệu');
     } finally {
       setLoading(false);
@@ -75,7 +74,6 @@ const OrderDetailPage = () => {
         message.error(response.message || 'Không thể cập nhật trạng thái đơn hàng');
       }
     } catch (error) {
-      console.error('Lỗi khi cập nhật trạng thái:', error);
       message.error('Đã xảy ra lỗi khi cập nhật trạng thái');
     } finally {
       setLoading(false);
@@ -125,7 +123,6 @@ const OrderDetailPage = () => {
             message.error(response.message || 'Không thể hủy đơn hàng');
           }
         } catch (error) {
-          console.error('Lỗi khi hủy đơn hàng:', error);
           message.error('Đã xảy ra lỗi khi hủy đơn hàng');
         } finally {
           setLoading(false);
@@ -191,21 +188,28 @@ const OrderDetailPage = () => {
     );
   };
 
-  // Danh sách cột cho bảng sản phẩm
+  // Danh sách cột cho bảng sản phẩm - Đã sửa để hiển thị đầy đủ thông tin
   const productColumns = [
     {
       title: 'Sản phẩm',
       key: 'product',
+      width: '45%', // Tăng chiều rộng cho cột sản phẩm
       render: (_, record) => (
         <Space>
           {record.image && (
             <img
               src={record.image}
               alt={record.name}
-              style={{ width: 40, height: 40, objectFit: 'cover' }}
+              style={{
+                width: 50,
+                height: 50,
+                objectFit: 'cover',
+                borderRadius: '4px',
+                border: '1px solid #f0f0f0'
+              }}
             />
           )}
-          <span>{record.name}</span>
+          <span style={{ wordBreak: 'break-word' }}>{record.name}</span>
         </Space>
       )
     },
@@ -213,16 +217,22 @@ const OrderDetailPage = () => {
       title: 'Giá',
       dataIndex: 'price',
       key: 'price',
+      width: '18%',
+      align: 'right', // Canh phải cho dễ đọc
       render: price => formatCurrency(price)
     },
     {
       title: 'Số lượng',
       dataIndex: 'quantity',
-      key: 'quantity'
+      key: 'quantity',
+      width: '15%',
+      align: 'right' // Canh phải cho dễ đọc
     },
     {
       title: 'Thành tiền',
       key: 'total',
+      width: '22%',
+      align: 'right', // Canh phải cho dễ đọc
       render: (_, record) => formatCurrency(record.price * record.quantity)
     }
   ];
@@ -240,8 +250,13 @@ const OrderDetailPage = () => {
 
   return (
     <div className="order-detail-page">
-      <Card loading={loading}>
-        <div className="page-header">
+      <Card loading={loading} bodyStyle={{ padding: '24px' }}>
+        <div className="page-header" style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '24px'
+        }}>
           <Space>
             <Button
               type="link"
@@ -250,7 +265,9 @@ const OrderDetailPage = () => {
             >
               Quay lại
             </Button>
-            <h2>Chi tiết đơn hàng #{order?.orderCode}</h2>
+            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 600 }}>
+              Chi tiết đơn hàng #{order?.orderCode}
+            </h2>
           </Space>
 
           <Space>
@@ -287,123 +304,184 @@ const OrderDetailPage = () => {
                   title="Thông tin đơn hàng"
                   className="order-info-card"
                   bordered={false}
+                  style={{ marginBottom: '20px' }}
+                  bodyStyle={{ padding: '16px' }}
                 >
-                  <Descriptions bordered column={{ xs: 1, sm: 2 }}>
-                    <Descriptions.Item label="Mã đơn hàng">
-                      {order.orderCode}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Ngày đặt hàng">
-                      {moment(order.createdAt).format('DD/MM/YYYY HH:mm')}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Trạng thái">
-                      {renderOrderStatus(order.status)}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Phương thức thanh toán">
-                      {order.paymentMethod === 'COD' ? (
-                        <Tag color="volcano">Thanh toán khi nhận hàng (COD)</Tag>
-                      ) : order.paymentMethod === 'BANK_TRANSFER' ? (
-                        <Tag color="blue">Chuyển khoản ngân hàng</Tag>
-                      ) : order.paymentMethod === 'MOMO' ? (
-                        <Tag color="purple">Ví MoMo</Tag>
-                      ) : order.paymentMethod === 'VNPAY' ? (
-                        <Tag color="cyan">VNPay</Tag>
-                      ) : (
-                        <Tag>{order.paymentMethod}</Tag>
-                      )}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Trạng thái thanh toán" span={2}>
-                      {order.payment?.status === 'PENDING' ? (
-                        <Tag color="orange">Chờ thanh toán</Tag>
-                      ) : order.payment?.status === 'COMPLETED' ? (
-                        <Tag color="green">Đã thanh toán</Tag>
-                      ) : order.payment?.status === 'AWAITING' ? (
-                        <Tag color="blue">Đang chờ</Tag>
-                      ) : (
-                        <Tag>{order.payment?.status || 'N/A'}</Tag>
-                      )}
-                      {order.payment?.paidAt && (
-                        <span style={{ marginLeft: '8px', fontSize: '12px' }}>
-                          ({moment(order.payment.paidAt).format('DD/MM/YYYY HH:mm')})
-                        </span>
-                      )}
-                    </Descriptions.Item>
-                    {order.notes && (
-                      <Descriptions.Item label="Ghi chú đơn hàng" span={2}>
-                        {order.notes}
-                      </Descriptions.Item>
-                    )}
-                    {order.status === 'CANCELLED' && (
-                      <Descriptions.Item label="Lý do hủy" span={2}>
-                        <div style={{ color: 'red' }}>
-                          {order.cancelReason || 'Không có lý do'}
-                          {order.cancelledAt && (
-                            <div style={{ fontSize: '12px', marginTop: '4px' }}>
-                              Thời gian hủy: {moment(order.cancelledAt).format('DD/MM/YYYY HH:mm')}
+                  <Row gutter={[16, 16]}>
+                    {/* Order Code */}
+                    <Col xs={24} sm={12}>
+                      <div className="info-item">
+                        <div className="info-label">Mã đơn hàng</div>
+                        <div className="info-content">
+                          <span style={{ fontWeight: 'bold' }}>{order.orderCode}</span>
+                        </div>
+                      </div>
+                    </Col>
+
+                    {/* Order Date */}
+                    <Col xs={24} sm={12}>
+                      <div className="info-item">
+                        <div className="info-label">Ngày đặt hàng</div>
+                        <div className="info-content">
+                          {moment(order.createdAt).format('DD/MM/YYYY HH:mm')}
+                        </div>
+                      </div>
+                    </Col>
+
+                    {/* Order Status */}
+                    <Col xs={24} sm={12}>
+                      <div className="info-item">
+                        <div className="info-label">Trạng thái</div>
+                        <div className="info-content">
+                          {renderOrderStatus(order.status)}
+                        </div>
+                      </div>
+                    </Col>
+
+                    {/* Payment Method */}
+                    <Col xs={24} sm={12}>
+                      <div className="info-item">
+                        <div className="info-label">Phương thức thanh toán</div>
+                        <div className="info-content">
+                          {order.paymentMethod === 'COD' ? (
+                            <Tag color="volcano">Thanh toán khi nhận hàng (COD)</Tag>
+                          ) : order.paymentMethod === 'BANK_TRANSFER' ? (
+                            <Tag color="blue">Chuyển khoản ngân hàng</Tag>
+                          ) : order.paymentMethod === 'MOMO' ? (
+                            <Tag color="purple">Ví MoMo</Tag>
+                          ) : order.paymentMethod === 'VNPAY' ? (
+                            <Tag color="cyan">VNPay</Tag>
+                          ) : (
+                            <Tag>{order.paymentMethod}</Tag>
+                          )}
+                        </div>
+                      </div>
+                    </Col>
+
+                    {/* Payment Status */}
+                    <Col xs={24}>
+                      <div className="info-item">
+                        <div className="info-label">Trạng thái thanh toán</div>
+                        <div className="info-content">
+                          <div>
+                            {order.payment?.status === 'PENDING' ? (
+                              <Tag color="orange">Chờ thanh toán</Tag>
+                            ) : order.payment?.status === 'COMPLETED' ? (
+                              <Tag color="green">Đã thanh toán</Tag>
+                            ) : order.payment?.status === 'AWAITING' ? (
+                              <Tag color="blue">Đang chờ</Tag>
+                            ) : (
+                              <Tag>{order.payment?.status || 'N/A'}</Tag>
+                            )}
+                          </div>
+                          {order.payment?.paidAt && (
+                            <div style={{ marginTop: '8px', fontSize: '13px' }}>
+                              Thời gian thanh toán: {moment(order.payment.paidAt).format('DD/MM/YYYY HH:mm')}
                             </div>
                           )}
                         </div>
-                      </Descriptions.Item>
+                      </div>
+                    </Col>
+
+                    {/* Order Notes (if exists) */}
+                    {order.notes && (
+                      <Col xs={24}>
+                        <div className="info-item">
+                          <div className="info-label">Ghi chú đơn hàng</div>
+                          <div className="info-content">{order.notes}</div>
+                        </div>
+                      </Col>
                     )}
-                  </Descriptions>
+
+                    {/* Cancel Reason (if canceled) */}
+                    {order.status === 'CANCELLED' && (
+                      <Col xs={24}>
+                        <div className="info-item">
+                          <div className="info-label">Lý do hủy</div>
+                          <div className="info-content" style={{ color: 'red' }}>
+                            {order.cancelReason || 'Không có lý do'}
+                            {order.cancelledAt && (
+                              <div style={{ fontSize: '12px', marginTop: '4px' }}>
+                                Thời gian hủy: {moment(order.cancelledAt).format('DD/MM/YYYY HH:mm')}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </Col>
+                    )}
+                  </Row>
                 </Card>
 
                 <Card
                   title="Sản phẩm đặt mua"
                   className="order-products-card"
                   bordered={false}
-                  style={{ marginTop: '20px' }}
+                  bodyStyle={{ padding: '16px' }}
                 >
-                  <Table
-                    dataSource={order.items}
-                    columns={productColumns}
-                    pagination={false}
-                    rowKey={(record) => record.product}
-                    summary={() => (
-                      <Table.Summary fixed>
-                        <Table.Summary.Row>
-                          <Table.Summary.Cell index={0} colSpan={3}>
-                            <strong>Tổng tiền sản phẩm</strong>
-                          </Table.Summary.Cell>
-                          <Table.Summary.Cell index={1}>
-                            <strong>{formatCurrency(order.subtotal)}</strong>
-                          </Table.Summary.Cell>
-                        </Table.Summary.Row>
-                        <Table.Summary.Row>
-                          <Table.Summary.Cell index={0} colSpan={3}>
-                            Phí vận chuyển
-                          </Table.Summary.Cell>
-                          <Table.Summary.Cell index={1}>
-                            {formatCurrency(order.shippingFee)}
-                          </Table.Summary.Cell>
-                        </Table.Summary.Row>
-                        {order.discount > 0 && (
+                  <div style={{ overflow: 'auto' }}>
+                    <Table
+                      dataSource={order.items}
+                      columns={productColumns}
+                      pagination={false}
+                      rowKey={(record) => record.product}
+                      bordered
+                      tableLayout="auto"
+                      style={{ minWidth: '600px' }}
+                      summary={() => (
+                        <Table.Summary fixed>
                           <Table.Summary.Row>
                             <Table.Summary.Cell index={0} colSpan={3}>
-                              Giảm giá
-                              {order.couponCode && (
-                                <span style={{ marginLeft: '8px', fontSize: '12px' }}>
-                                  (Mã: {order.couponCode})
-                                </span>
-                              )}
+                              <strong>Tổng tiền sản phẩm</strong>
                             </Table.Summary.Cell>
-                            <Table.Summary.Cell index={1} style={{ color: 'red' }}>
-                              -{formatCurrency(order.discount)}
+                            <Table.Summary.Cell index={1} align="right">
+                              <strong>{formatCurrency(order.subtotal)}</strong>
                             </Table.Summary.Cell>
                           </Table.Summary.Row>
-                        )}
-                        <Table.Summary.Row>
-                          <Table.Summary.Cell index={0} colSpan={3}>
-                            <strong>Tổng thanh toán</strong>
-                          </Table.Summary.Cell>
-                          <Table.Summary.Cell index={1}>
-                            <strong style={{ color: '#e31836', fontSize: '16px' }}>
-                              {formatCurrency(order.total)}
-                            </strong>
-                          </Table.Summary.Cell>
-                        </Table.Summary.Row>
-                      </Table.Summary>
-                    )}
-                  />
+                          <Table.Summary.Row>
+                            <Table.Summary.Cell index={0} colSpan={3}>
+                              Phí vận chuyển
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={1} align="right">
+                              {formatCurrency(order.shippingFee)}
+                            </Table.Summary.Cell>
+                          </Table.Summary.Row>
+                          {order.discount > 0 && (
+                            <Table.Summary.Row>
+                              <Table.Summary.Cell index={0} colSpan={3}>
+                                Giảm giá
+                                {order.couponCode && (
+                                  <span style={{ marginLeft: '8px', fontSize: '12px' }}>
+                                    (Mã: {order.couponCode})
+                                  </span>
+                                )}
+                              </Table.Summary.Cell>
+                              <Table.Summary.Cell index={1} align="right" style={{ color: 'red' }}>
+                                -{formatCurrency(order.discount)}
+                              </Table.Summary.Cell>
+                            </Table.Summary.Row>
+                          )}
+                          <Table.Summary.Row>
+                            <Table.Summary.Cell
+                              index={0}
+                              colSpan={3}
+                              style={{ backgroundColor: '#f0f7ff' }}
+                            >
+                              <strong>Tổng thanh toán</strong>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell
+                              index={1}
+                              align="right"
+                              style={{ backgroundColor: '#f0f7ff' }}
+                            >
+                              <strong style={{ color: '#e31836', fontSize: '16px' }}>
+                                {formatCurrency(order.total)}
+                              </strong>
+                            </Table.Summary.Cell>
+                          </Table.Summary.Row>
+                        </Table.Summary>
+                      )}
+                    />
+                  </div>
                 </Card>
               </Col>
 
@@ -412,17 +490,32 @@ const OrderDetailPage = () => {
                   title="Thông tin người nhận"
                   className="customer-info-card"
                   bordered={false}
+                  style={{ marginBottom: '20px' }}
+                  bodyStyle={{ padding: '16px' }}
                 >
-                  <p><strong>Họ tên:</strong> {order.shippingAddress?.fullName}</p>
-                  <p><strong>Số điện thoại:</strong> {order.shippingAddress?.phone}</p>
+                  <p style={{ marginBottom: '12px' }}>
+                    <strong style={{ display: 'inline-block', width: '120px' }}>Họ tên:</strong>
+                    {order.shippingAddress?.fullName}
+                  </p>
+                  <p style={{ marginBottom: '12px' }}>
+                    <strong style={{ display: 'inline-block', width: '120px' }}>Số điện thoại:</strong>
+                    {order.shippingAddress?.phone}
+                  </p>
                   {order.shippingAddress?.email && (
-                    <p><strong>Email:</strong> {order.shippingAddress?.email}</p>
+                    <p style={{ marginBottom: '12px' }}>
+                      <strong style={{ display: 'inline-block', width: '120px' }}>Email:</strong>
+                      {order.shippingAddress?.email}
+                    </p>
                   )}
-                  <p>
-                    <strong>Địa chỉ:</strong> {order.shippingAddress?.street}, {order.shippingAddress?.ward}, {order.shippingAddress?.district}, {order.shippingAddress?.city}
+                  <p style={{ marginBottom: '12px', wordBreak: 'break-word' }}>
+                    <strong style={{ display: 'inline-block', width: '120px' }}>Địa chỉ:</strong>
+                    {order.shippingAddress?.street}, {order.shippingAddress?.ward}, {order.shippingAddress?.district}, {order.shippingAddress?.city}
                   </p>
                   {order.shippingAddress?.notes && (
-                    <p><strong>Ghi chú giao hàng:</strong> {order.shippingAddress?.notes}</p>
+                    <p style={{ marginBottom: '12px', wordBreak: 'break-word' }}>
+                      <strong style={{ display: 'inline-block', width: '120px' }}>Ghi chú giao hàng:</strong>
+                      {order.shippingAddress?.notes}
+                    </p>
                   )}
                 </Card>
 
@@ -431,53 +524,47 @@ const OrderDetailPage = () => {
                   className="order-history-card"
                   bordered={false}
                   style={{ marginTop: '20px' }}
+                  bodyStyle={{ padding: '16px' }}
                 >
                   <Timeline>
                     <Timeline.Item>
-                      <p><strong>Đã tạo đơn hàng</strong></p>
-                      <p>{moment(order.createdAt).format('DD/MM/YYYY HH:mm')}</p>
+                      <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Đã tạo đơn hàng</p>
+                      <p style={{ margin: '0 0 4px' }}>{moment(order.createdAt).format('DD/MM/YYYY HH:mm')}</p>
                     </Timeline.Item>
 
                     {order.status === 'AWAITING_PAYMENT' && (
                       <Timeline.Item color="orange">
-                        <p><strong>Chờ thanh toán</strong></p>
-                        <p>{moment(order.createdAt).format('DD/MM/YYYY HH:mm')}</p>
+                        <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Chờ thanh toán</p>
+                        <p style={{ margin: '0 0 4px' }}>{moment(order.createdAt).format('DD/MM/YYYY HH:mm')}</p>
                       </Timeline.Item>
                     )}
 
                     {(order.status === 'PROCESSING' || order.status === 'SHIPPING' || order.status === 'DELIVERED' || order.status === 'COMPLETED') && (
                       <Timeline.Item color="blue">
-                        <p><strong>Đang xử lý</strong></p>
-                        <p>{moment(order.updatedAt).format('DD/MM/YYYY HH:mm')}</p>
+                        <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Đang xử lý</p>
+                        <p style={{ margin: '0 0 4px' }}>{moment(order.updatedAt).format('DD/MM/YYYY HH:mm')}</p>
                       </Timeline.Item>
                     )}
 
                     {(order.status === 'SHIPPING' || order.status === 'DELIVERED' || order.status === 'COMPLETED') && (
                       <Timeline.Item color="blue">
-                        <p><strong>Đang vận chuyển</strong></p>
-                        <p>{order.deliveryInfo?.shippedAt ? moment(order.deliveryInfo.shippedAt).format('DD/MM/YYYY HH:mm') : moment(order.updatedAt).format('DD/MM/YYYY HH:mm')}</p>
-                      </Timeline.Item>
-                    )}
-
-                    {(order.status === 'DELIVERED' || order.status === 'COMPLETED') && (
-                      <Timeline.Item color="green">
-                        <p><strong>Đã giao hàng</strong></p>
-                        <p>{order.deliveryInfo?.deliveredAt ? moment(order.deliveryInfo.deliveredAt).format('DD/MM/YYYY HH:mm') : moment(order.updatedAt).format('DD/MM/YYYY HH:mm')}</p>
+                        <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Đang vận chuyển</p>
+                        <p style={{ margin: '0 0 4px' }}>{order.deliveryInfo?.shippedAt ? moment(order.deliveryInfo.shippedAt).format('DD/MM/YYYY HH:mm') : moment(order.updatedAt).format('DD/MM/YYYY HH:mm')}</p>
                       </Timeline.Item>
                     )}
 
                     {order.status === 'COMPLETED' && (
                       <Timeline.Item color="green">
-                        <p><strong>Hoàn thành</strong></p>
-                        <p>{moment(order.updatedAt).format('DD/MM/YYYY HH:mm')}</p>
+                        <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Hoàn thành</p>
+                        <p style={{ margin: '0 0 4px' }}>{moment(order.updatedAt).format('DD/MM/YYYY HH:mm')}</p>
                       </Timeline.Item>
                     )}
 
                     {order.status === 'CANCELLED' && (
                       <Timeline.Item color="red">
-                        <p><strong>Đã hủy</strong></p>
-                        <p>{order.cancelledAt ? moment(order.cancelledAt).format('DD/MM/YYYY HH:mm') : moment(order.updatedAt).format('DD/MM/YYYY HH:mm')}</p>
-                        <p>Lý do: {order.cancelReason || 'Không có lý do'}</p>
+                        <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Đã hủy</p>
+                        <p style={{ margin: '0 0 4px' }}>{order.cancelledAt ? moment(order.cancelledAt).format('DD/MM/YYYY HH:mm') : moment(order.updatedAt).format('DD/MM/YYYY HH:mm')}</p>
+                        <p style={{ margin: '0 0 4px', wordBreak: 'break-word' }}>Lý do: {order.cancelReason || 'Không có lý do'}</p>
                       </Timeline.Item>
                     )}
                   </Timeline>
@@ -489,12 +576,13 @@ const OrderDetailPage = () => {
                     className="admin-notes-card"
                     bordered={false}
                     style={{ marginTop: '20px' }}
+                    bodyStyle={{ padding: '16px' }}
                   >
                     <Timeline>
                       {order.adminNotes.map((note, index) => (
                         <Timeline.Item key={index}>
-                          <p>{note.content}</p>
-                          <p style={{ fontSize: '12px' }}>
+                          <p style={{ margin: '0 0 4px', wordBreak: 'break-word' }}>{note.content}</p>
+                          <p style={{ margin: '0 0 4px', fontSize: '12px' }}>
                             {moment(note.createdAt).format('DD/MM/YYYY HH:mm')}
                           </p>
                         </Timeline.Item>
@@ -514,6 +602,7 @@ const OrderDetailPage = () => {
         open={statusModalVisible}
         onCancel={() => setStatusModalVisible(false)}
         footer={null}
+        bodyStyle={{ padding: '20px' }}
       >
         <Form
           form={form}
@@ -526,11 +615,8 @@ const OrderDetailPage = () => {
             rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}
           >
             <Select placeholder="Chọn trạng thái">
-              <Option value="PENDING">Chờ xử lý</Option>
-              <Option value="AWAITING_PAYMENT">Chờ thanh toán</Option>
               <Option value="PROCESSING">Đang xử lý</Option>
               <Option value="SHIPPING">Đang vận chuyển</Option>
-              <Option value="DELIVERED">Đã giao hàng</Option>
               <Option value="COMPLETED">Hoàn thành</Option>
               <Option value="CANCELLED">Đã hủy</Option>
               <Option value="REFUNDED">Đã hoàn tiền</Option>

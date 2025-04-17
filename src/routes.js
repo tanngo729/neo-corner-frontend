@@ -18,6 +18,7 @@ import PermissionCheck from './components/common/PermissionCheck';
 
 // Admin pages
 import LoginPage from './pages/admin/auth/AdminLoginPage';
+import DashboardPage from './pages/admin/dashboard/DashboardPage'; // Add Dashboard import
 import ProductListPage from './pages/admin/products/ProductListPage';
 import ProductFormPage from './pages/admin/products/ProductFormPage';
 import ProductDetailPage from './pages/admin/products/ProductDetailPage';
@@ -71,7 +72,8 @@ const AppRoutes = () => {
           <AdminLayout />
         </AdminRoute>
       }>
-        <Route index element={<ProductListPage />} />
+        {/* Changed index route to Dashboard */}
+        <Route index element={<DashboardPage />} />
 
         {/* Routes sản phẩm */}
         <Route path="products" element={<ProductListPage />} />

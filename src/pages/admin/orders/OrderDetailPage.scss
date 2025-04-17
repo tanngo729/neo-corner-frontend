@@ -1,0 +1,353 @@
+// OrderDetailPage.scss
+.order-detail-page {
+  padding: 24px;
+  
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+  }
+  
+  .ant-card {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    
+    .ant-card-head {
+      border-bottom: 1px solid #f0f0f0;
+    }
+  }
+  
+  .order-info-card,
+  .customer-info-card,
+  .order-history-card,
+  .order-products-card,
+  .admin-notes-card {
+    margin-bottom: 20px;
+    
+    .ant-card-head-title {
+      font-weight: 600;
+      font-size: 16px;
+    }
+  }
+  
+  .ant-descriptions {
+    margin-bottom: 0;
+    
+    .ant-descriptions-item-label {
+      font-weight: 500;
+      color: #555;
+    }
+    
+    .ant-descriptions-item-content {
+      word-break: break-word;
+    }
+    
+    // Đảm bảo khung không bị vỡ và nội dung hiển thị đầy đủ
+    &.ant-descriptions-bordered {
+      .ant-descriptions-view {
+        border: 1px solid #f0f0f0;
+        border-radius: 4px;
+      }
+      
+      .ant-descriptions-row {
+        border-bottom: 1px solid #f0f0f0;
+        
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+      
+      .ant-descriptions-item-label {
+        background-color: #fafafa;
+        padding: 12px 16px;
+        min-width: 120px;
+      }
+      
+      .ant-descriptions-item-content {
+        padding: 12px 16px;
+        color: #262626;
+      }
+      
+      // Đảm bảo ngày tháng hiển thị đúng
+      .ant-tag {
+        display: inline-block;
+        margin-bottom: 4px;
+      }
+    }
+  }
+  
+  .ant-table {
+    // Đảm bảo bảng có thể scroll ngang khi nội dung quá rộng
+    overflow-x: auto;
+    
+    // Cho phép các ô hiển thị đầy đủ nội dung
+    table-layout: auto;
+    word-break: normal;
+    white-space: normal;
+
+    .ant-table-thead > tr > th {
+      // Đảm bảo tiêu đề cột không bị cắt
+      white-space: normal;
+      overflow: visible;
+      text-overflow: initial;
+      padding: 12px 16px;
+      font-weight: 600;
+      background-color: #f7f7f7;
+    }
+    
+    .ant-table-tbody > tr > td {
+      // Cho phép nội dung hiển thị đầy đủ
+      white-space: normal;
+      overflow: visible;
+      padding: 12px 16px;
+      vertical-align: top;
+    }
+    
+    .ant-table-summary {
+      .ant-table-cell {
+        padding: 12px 16px;
+      }
+    }
+    
+    // Đảm bảo cột sản phẩm có đủ không gian
+    th:first-child, td:first-child {
+      min-width: 250px;
+    }
+    
+    // Các cột giá, số lượng, thành tiền
+    th:nth-child(2), td:nth-child(2) {
+      min-width: 120px;
+      white-space: nowrap;
+    }
+    
+    th:nth-child(3), td:nth-child(3) {
+      min-width: 100px;
+    }
+    
+    th:nth-child(4), td:nth-child(4) {
+      min-width: 140px;
+      white-space: nowrap;
+    }
+  }
+  
+  // Đảm bảo thông tin khách hàng hiển thị đúng
+  .customer-info-card {
+    p {
+      margin-bottom: 12px;
+      line-height: 1.6;
+      word-break: break-word;
+      
+      strong {
+        display: inline-block;
+        min-width: 120px;
+        margin-right: 8px;
+      }
+    }
+  }
+  
+  // Đảm bảo timeline hiển thị đúng
+  .order-history-card, .admin-notes-card {
+    .ant-timeline {
+      padding: 8px 0;
+      
+      .ant-timeline-item {
+        padding-bottom: 16px;
+        
+        p {
+          margin-bottom: 4px;
+          line-height: 1.5;
+          word-break: break-word;
+        }
+        
+        &:last-child {
+          padding-bottom: 0;
+        }
+      }
+    }
+  }
+  
+  // Status badges
+  .ant-tag {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    
+    .anticon {
+      margin-right: 4px;
+    }
+  }
+  
+  // Order not found page
+  .order-not-found {
+    text-align: center;
+    padding: 60px 0;
+    
+    h2 {
+      margin-bottom: 24px;
+      color: #555;
+    }
+  }
+  
+  // Responsive adjustments
+  // Sửa lỗi hiển thị trên màn hình nhỏ
+  @media (max-width: 992px) {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      
+      .ant-space {
+        margin-bottom: 16px;
+      }
+    }
+    
+    // Đảm bảo bảng vẫn hiển thị đầy đủ trên màn hình nhỏ
+    .ant-table-wrapper {
+      overflow-x: auto;
+      
+      table {
+        min-width: 650px;
+      }
+    }
+    
+    // Hiệu chỉnh kích thước khung mô tả đơn hàng trên màn hình nhỏ
+    .ant-descriptions-bordered {
+      .ant-descriptions-item-label,
+      .ant-descriptions-item-content {
+        padding: 10px 12px;
+        word-break: break-word;
+      }
+    }
+    
+    // Đảm bảo nội dung trong các ô không bị cắt
+    .ant-table-tbody > tr > td {
+      word-break: break-word;
+    }
+  }
+  
+  @media print {
+    padding: 0;
+    
+    .page-header {
+      button {
+        display: none;
+      }
+    }
+    
+    .ant-card {
+      box-shadow: none;
+      border: none;
+    }
+    
+    .ant-btn {
+      display: none;
+    }
+    
+    .ant-card-head {
+      padding: 12px 0;
+    }
+    
+    .ant-card-body {
+      padding: 12px 0;
+    }
+  }
+  
+  // Form modal
+  .ant-modal {
+    .ant-form-item-label > label {
+      font-weight: 500;
+    }
+    
+    .ant-select {
+      width: 100%;
+    }
+  }
+  
+  // Product table styles
+  .order-products-card {
+    .ant-table-cell {
+      vertical-align: middle;
+    }
+    
+    // Tùy chỉnh hiển thị hình ảnh sản phẩm
+    img {
+      border-radius: 4px;
+      border: 1px solid #f0f0f0;
+      max-width: 50px;
+      max-height: 50px;
+      object-fit: contain;
+    }
+    
+    // Tùy chỉnh khoảng cách cho bảng sản phẩm
+    .ant-table {
+      margin-bottom: 0;
+      
+      // Đảm bảo tên sản phẩm hiển thị đúng
+      .ant-space {
+        align-items: center;
+        
+        span {
+          display: inline-block;
+          margin-left: 8px;
+          word-break: normal;
+          line-height: 1.4;
+        }
+      }
+      
+      // Canh phải cho các cột số liệu
+      td:nth-child(2),
+      td:nth-child(3),
+      td:nth-child(4) {
+        text-align: right;
+      }
+      
+      th:nth-child(2),
+      th:nth-child(3),
+      th:nth-child(4) {
+        text-align: right;
+      }
+    }
+    
+    // Tùy chỉnh phần tóm tắt đơn hàng
+    .ant-table-summary {
+      background-color: #fafafa;
+      
+      .ant-table-cell {
+        &:first-child {
+          text-align: left;
+        }
+        
+        &:last-child {
+          text-align: right;
+          padding-right: 24px;
+        }
+      }
+      
+      // Hàng tổng cộng
+      .ant-table-summary-row:last-child {
+        background-color: #f0f7ff;
+        border-top: 1px solid #e8e8e8;
+        font-weight: 600;
+      }
+    }
+  }
+  
+  // Timeline customizations
+  .order-history-card {
+    .ant-timeline-item-tail {
+      border-left: 2px solid #e8e8e8;
+    }
+    
+    .ant-timeline-item-head {
+      width: 16px;
+      height: 16px;
+      margin-left: -8px;
+    }
+  }
+}

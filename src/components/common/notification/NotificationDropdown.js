@@ -1,5 +1,5 @@
 // components/common/notification/NotificationDropdown.js
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Badge, Empty, List, Typography, Button, Tag, message, Popover } from 'antd';
 import { BellOutlined, CheckOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -12,122 +12,10 @@ const { Text } = Typography;
 
 moment.locale('vi');
 
-const NotificationDropdown = ({ isAdminProp }) => {
-  const {
-    notifications = [],
-    unreadCount = 0,
-    markAllAsRead,
-    markAsRead,
-    deleteNotification,
-    clearAllNotifications,
-    getStatusText,
-    refreshNotifications,
-    isAdmin: contextIsAdmin,
-    loading,
-    actionLoading
-  } = useNotification();
-
-  // Sử dụng isAdmin từ prop nếu được cung cấp, nếu không lấy từ context
-  const isAdmin = isAdminProp !== undefined ? isAdminProp : contextIsAdmin;
-
-  const [visible, setVisible] = useState(false);
-  const navigate = useNavigate();
-  const [refreshing, setRefreshing] = useState(false);
-
-  // Tự động refresh thông báo khi component mount
-  useEffect(() => {
-    console.log(`[NotificationDropdown] ${isAdmin ? 'Admin' : 'Client'} - Component mounted`);
-    if (refreshNotifications) {
-      refreshNotifications();
-    }
-  }, [refreshNotifications, isAdmin]);
-
-  // Xử lý khi nhấp vào thông báo
-  const handleNotificationClick = async (notification) => {
-    try {
-      console.log(`[NotificationDropdown] Click vào thông báo:`, notification);
-
-      // Luôn sử dụng _id - phía backend sử dụng _id từ MongoDB
-      const notificationId = notification._id;
-
-      if (!notificationId) {
-        console.error('[NotificationDropdown] Thiếu ID thông báo:', notification);
-        return;
-      }
-
-      // Đánh dấu là đã đọc nếu chưa đọc
-      if (!notification.read) {
-        await markAsRead(notificationId);
-      }
-
-      // Xử lý khác nhau cho thông báo gom nhóm
-      if (notification.type === 'grouped') {
-        // Mở trang danh sách đơn hàng với bộ lọc phù hợp nếu có
-        const route = isAdmin ? '/admin/orders' : '/orders';
-        navigate(route);
-      }
-      // Điều hướng dựa trên loại thông báo thông thường
-      else if (notification.type === 'order-status-update' && notification.orderId) {
-        navigate(isAdmin ? `/admin/orders/${notification.orderId}` : `/orders/${notification.orderId}`);
-      } else if (notification.type === 'new-order' && notification.orderId) {
-        navigate(isAdmin ? `/admin/orders/${notification.orderId}` : `/orders/${notification.orderId}`);
-      } else if (notification.type === 'cancelled-by-user' && notification.orderId) {
-        navigate(isAdmin ? `/admin/orders/${notification.orderId}` : `/orders/${notification.orderId}`);
-      } else if (notification.orderId) {
-        navigate(isAdmin ? `/admin/orders/${notification.orderId}` : `/orders/${notification.orderId}`);
-      }
-
-      setVisible(false);
-    } catch (error) {
-      console.error('[NotificationDropdown] Lỗi khi xử lý thông báo:', error);
-      message.error('Không thể xử lý thông báo. Vui lòng thử lại.');
-    }
-  };
-
-  // Xử lý "Đánh dấu đã đọc tất cả"
-  const handleMarkAllAsRead = async (e) => {
-    try {
-      e.stopPropagation();
-      console.log(`[NotificationDropdown] Đánh dấu tất cả đã đọc`);
-      await markAllAsRead();
-    } catch (error) {
-      console.error('[NotificationDropdown] Lỗi khi đánh dấu đã đọc:', error);
-      message.error('Không thể đánh dấu đã đọc. Vui lòng thử lại.');
-    }
-  };
-
-  // Xử lý refresh thông báo
-  const handleRefresh = async (e) => {
-    try {
-      e.stopPropagation();
-      setRefreshing(true);
-      console.log(`[NotificationDropdown] Đang làm mới thông báo...`);
-
-      if (refreshNotifications) {
-        await refreshNotifications();
-        message.success('Đã làm mới thông báo');
-      }
-    } catch (error) {
-      console.error('[NotificationDropdown] Lỗi khi làm mới thông báo:', error);
-      message.error('Không thể làm mới thông báo. Vui lòng thử lại.');
-    } finally {
-      setTimeout(() => setRefreshing(false), 1000);
-    }
-  };
-
-  // Hàm xử lý việc xóa một thông báo
-  const handleDeleteNotification = async (e, notification) => {
-    e.stopPropagation();
-    try {
-      await deleteNotification(notification._id);
-    } catch (error) {
-      console.error('[NotificationDropdown] Lỗi khi xóa thông báo:', error);
-      message.error('Không thể xóa thông báo. Vui lòng thử lại.');
-    }
-  };
-
+// Tách component NotificationItem để tối ưu render
+const NotificationItem = React.memo(({ notification, onDelete, onClick, getStatusText }) => {
   // Render thông báo phù hợp với loại
-  const renderNotificationContent = (notification) => {
+  const renderNotificationContent = () => {
     // Xử lý thông báo gom nhóm
     if (notification.type === 'grouped') {
       return (
@@ -192,8 +80,142 @@ const NotificationDropdown = ({ isAdminProp }) => {
     }
   };
 
-  // Nội dung của Popover
-  const notificationContent = (
+  return (
+    <List.Item
+      className={`notification-item ${notification.read ? '' : 'unread'}`}
+      onClick={() => onClick(notification)}
+      actions={[
+        <Button
+          type="text"
+          danger
+          icon={<DeleteOutlined />}
+          onClick={(e) => onDelete(e, notification)}
+        />
+      ]}
+    >
+      {renderNotificationContent()}
+    </List.Item>
+  );
+});
+
+const NotificationDropdown = React.memo(({ isAdminProp }) => {
+  const {
+    notifications = [],
+    unreadCount = 0,
+    markAllAsRead,
+    markAsRead,
+    deleteNotification,
+    clearAllNotifications,
+    getStatusText,
+    refreshNotifications,
+    isAdmin: contextIsAdmin,
+    loading,
+    actionLoading
+  } = useNotification();
+
+  // Sử dụng isAdmin từ prop nếu được cung cấp, nếu không lấy từ context
+  const isAdmin = isAdminProp !== undefined ? isAdminProp : contextIsAdmin;
+
+  const [visible, setVisible] = useState(false);
+  const navigate = useNavigate();
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Tự động refresh thông báo khi component mount
+  useEffect(() => {
+    console.log(`[NotificationDropdown] ${isAdmin ? 'Admin' : 'Client'} - Component mounted`);
+    if (refreshNotifications) {
+      refreshNotifications();
+    }
+  }, [refreshNotifications, isAdmin]);
+
+  // Xử lý khi nhấp vào thông báo
+  const handleNotificationClick = useCallback(async (notification) => {
+    try {
+      console.log(`[NotificationDropdown] Click vào thông báo:`, notification);
+
+      // Luôn sử dụng _id - phía backend sử dụng _id từ MongoDB
+      const notificationId = notification._id;
+
+      if (!notificationId) {
+        console.error('[NotificationDropdown] Thiếu ID thông báo:', notification);
+        return;
+      }
+
+      // Đánh dấu là đã đọc nếu chưa đọc
+      if (!notification.read) {
+        await markAsRead(notificationId);
+      }
+
+      // Xử lý khác nhau cho thông báo gom nhóm
+      if (notification.type === 'grouped') {
+        // Mở trang danh sách đơn hàng với bộ lọc phù hợp nếu có
+        const route = isAdmin ? '/admin/orders' : '/orders';
+        navigate(route);
+      }
+      // Điều hướng dựa trên loại thông báo thông thường
+      else if (notification.type === 'order-status-update' && notification.orderId) {
+        navigate(isAdmin ? `/admin/orders/${notification.orderId}` : `/orders/${notification.orderId}`);
+      } else if (notification.type === 'new-order' && notification.orderId) {
+        navigate(isAdmin ? `/admin/orders/${notification.orderId}` : `/orders/${notification.orderId}`);
+      } else if (notification.type === 'cancelled-by-user' && notification.orderId) {
+        navigate(isAdmin ? `/admin/orders/${notification.orderId}` : `/orders/${notification.orderId}`);
+      } else if (notification.orderId) {
+        navigate(isAdmin ? `/admin/orders/${notification.orderId}` : `/orders/${notification.orderId}`);
+      }
+
+      setVisible(false);
+    } catch (error) {
+      console.error('[NotificationDropdown] Lỗi khi xử lý thông báo:', error);
+      message.error('Không thể xử lý thông báo. Vui lòng thử lại.');
+    }
+  }, [markAsRead, navigate, isAdmin]);
+
+  // Xử lý "Đánh dấu đã đọc tất cả"
+  const handleMarkAllAsRead = useCallback(async (e) => {
+    try {
+      e.stopPropagation();
+      console.log(`[NotificationDropdown] Đánh dấu tất cả đã đọc`);
+      await markAllAsRead();
+    } catch (error) {
+      console.error('[NotificationDropdown] Lỗi khi đánh dấu đã đọc:', error);
+      message.error('Không thể đánh dấu đã đọc. Vui lòng thử lại.');
+    }
+  }, [markAllAsRead]);
+
+  // Xử lý refresh thông báo
+  const handleRefresh = useCallback(async (e) => {
+    try {
+      e.stopPropagation();
+      if (refreshing || loading) return; // Tránh gọi API nhiều lần
+
+      setRefreshing(true);
+      console.log(`[NotificationDropdown] Đang làm mới thông báo...`);
+
+      if (refreshNotifications) {
+        await refreshNotifications();
+        message.success('Đã làm mới thông báo');
+      }
+    } catch (error) {
+      console.error('[NotificationDropdown] Lỗi khi làm mới thông báo:', error);
+      message.error('Không thể làm mới thông báo. Vui lòng thử lại.');
+    } finally {
+      setTimeout(() => setRefreshing(false), 1000);
+    }
+  }, [refreshNotifications, refreshing, loading]);
+
+  // Hàm xử lý việc xóa một thông báo
+  const handleDeleteNotification = useCallback(async (e, notification) => {
+    e.stopPropagation();
+    try {
+      await deleteNotification(notification._id);
+    } catch (error) {
+      console.error('[NotificationDropdown] Lỗi khi xóa thông báo:', error);
+      message.error('Không thể xóa thông báo. Vui lòng thử lại.');
+    }
+  }, [deleteNotification]);
+
+  // Nội dung của Popover với useMemo để tránh render lại không cần thiết
+  const notificationContent = useMemo(() => (
     <div className="notification-dropdown">
       <div className="notification-header">
         <Button
@@ -243,26 +265,31 @@ const NotificationDropdown = ({ isAdminProp }) => {
           <List
             dataSource={notifications}
             renderItem={(notification) => (
-              <List.Item
-                className={`notification-item ${notification.read ? '' : 'unread'}`}
-                onClick={() => handleNotificationClick(notification)}
-                actions={[
-                  <Button
-                    type="text"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={(e) => handleDeleteNotification(e, notification)}
-                  />
-                ]}
-              >
-                {renderNotificationContent(notification)}
-              </List.Item>
+              <NotificationItem
+                key={notification._id}
+                notification={notification}
+                onDelete={handleDeleteNotification}
+                onClick={handleNotificationClick}
+                getStatusText={getStatusText}
+              />
             )}
           />
         )}
       </div>
     </div>
-  );
+  ), [
+    notifications,
+    unreadCount,
+    actionLoading,
+    loading,
+    refreshing,
+    handleMarkAllAsRead,
+    handleRefresh,
+    handleDeleteNotification,
+    handleNotificationClick,
+    clearAllNotifications,
+    getStatusText
+  ]);
 
   return (
     <div className="notification-dropdown-container">
@@ -292,7 +319,7 @@ const NotificationDropdown = ({ isAdminProp }) => {
       </Popover>
     </div>
   );
-};
+});
 
 export const AdminNotificationDropdown = (props) => {
   return <NotificationDropdown isAdminProp={true} {...props} />;

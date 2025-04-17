@@ -1,5 +1,5 @@
 // src/pages/admin/orders/OrderListPage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, Table, Tag, message, Button, Space, DatePicker, Input, Select, Tooltip, Badge, Popover, Alert } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -31,6 +31,20 @@ const OrderListPage = () => {
   const { socket, connected } = useSocket();
   const { getStatusText } = useNotification();
 
+  // Use refs to access latest state in event handlers without recreating them
+  const paginationRef = useRef({
+    current: 1,
+    pageSize: 10,
+    total: 0
+  });
+  const filtersRef = useRef({
+    search: '',
+    status: '',
+    dateRange: null,
+    sortBy: 'createdAt',
+    sortOrder: 'desc'
+  });
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [socketTesting, setSocketTesting] = useState(false);
@@ -54,91 +68,35 @@ const OrderListPage = () => {
     sortOrder: 'desc'
   });
 
-  // Lắng nghe sự kiện đơn hàng mới từ socket
+  // Update refs when state changes
   useEffect(() => {
-    if (!socket) return;
+    paginationRef.current = pagination;
+  }, [pagination]);
 
-    // Lắng nghe phản hồi kiểm tra kết nối
-    const handleConnectionVerified = (data) => {
-      message.success('Kết nối socket hoạt động!');
-      setSocketTesting(false);
-      setDebugInfo(prev => ({
-        ...prev,
-        socketChecks: prev.socketChecks + 1,
-        lastResponse: data
-      }));
-    };
-
-    // Lắng nghe thông báo debug
-    const handleDebugNotification = (data) => {
-      console.log('Đã nhận thông báo debug:', data);
-      setDebugInfo(prev => ({
-        ...prev,
-        notifications: [...prev.notifications.slice(-9), {
-          type: data.type,
-          timestamp: new Date(),
-          data
-        }]
-      }));
-    };
-
-    // QUAN TRỌNG: Sự kiện đơn hàng mới
-    const handleNewOrder = (data) => {
-      console.log('Nhận thông báo đơn hàng:', data);
-
-      // Cập nhật lại danh sách đơn hàng ngay lập tức khi có thông báo mới
-      fetchOrders(pagination.current, pagination.pageSize);
-
-      // Hiển thị thông báo phù hợp
-      if (data.type === 'new-order') {
-        message.info(`Đơn hàng mới #${data.orderCode} vừa được tạo!`);
-      } else if (data.type === 'status-update') {
-        message.info(`Đơn hàng #${data.orderCode} đã được cập nhật!`);
-      } else if (data.type === 'cancelled-by-user') {
-        message.warning(`Đơn hàng #${data.orderCode} đã bị khách hàng hủy!`);
-      }
-
-      // Lưu thông báo vào debugInfo
-      setDebugInfo(prev => ({
-        ...prev,
-        notifications: [...prev.notifications.slice(-9), {
-          type: 'new-order',
-          timestamp: new Date(),
-          data
-        }]
-      }));
-    };
-
-    socket.on('new-order', handleNewOrder);
-    socket.on('connection-verified', handleConnectionVerified);
-    socket.on('debug-notification', handleDebugNotification);
-
-    return () => {
-      socket.off('new-order', handleNewOrder);
-      socket.off('connection-verified', handleConnectionVerified);
-      socket.off('debug-notification', handleDebugNotification);
-    };
-  }, [socket]); // Loại bỏ dependency pagination để tránh đăng ký lại event listener
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
 
   // Lấy danh sách đơn hàng
-  const fetchOrders = async (page = 1, pageSize = 10) => {
+  const fetchOrders = useCallback(async (page = 1, pageSize = 10) => {
     try {
       setLoading(true);
 
-      // Xây dựng tham số truy vấn
+      // Xây dựng tham số truy vấn - use current state from refs
+      const currentFilters = filtersRef.current;
+
       const params = {
         page,
         limit: pageSize,
-        sortBy: filters.sortBy,
-        sortOrder: filters.sortOrder
+        sortBy: currentFilters.sortBy,
+        sortOrder: currentFilters.sortOrder
       };
 
-      // Thêm các tham số tìm kiếm nếu có
-      if (filters.search) params.search = filters.search;
-      if (filters.status) params.status = filters.status;
-      if (filters.dateRange && filters.dateRange[0] && filters.dateRange[1]) {
-        params.startDate = filters.dateRange[0].startOf('day').toISOString();
-        params.endDate = filters.dateRange[1].endOf('day').toISOString();
+      if (currentFilters.search) params.search = currentFilters.search;
+      if (currentFilters.status) params.status = currentFilters.status;
+      if (currentFilters.dateRange && currentFilters.dateRange[0] && currentFilters.dateRange[1]) {
+        params.startDate = currentFilters.dateRange[0].startOf('day').toISOString();
+        params.endDate = currentFilters.dateRange[1].endOf('day').toISOString();
       }
 
       const response = await orderService.getOrders(params);
@@ -154,23 +112,107 @@ const OrderListPage = () => {
         message.error('Không thể lấy danh sách đơn hàng');
       }
     } catch (error) {
-      console.error('Lỗi khi lấy danh sách đơn hàng:', error);
+
       message.error('Đã xảy ra lỗi khi tải dữ liệu');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Tải dữ liệu khi component mount hoặc filter thay đổi
   useEffect(() => {
-    fetchOrders(pagination.current, pagination.pageSize);
-  }, [filters]);
+    if (!socket || !connected) return;
+
+    // Handler for new orders
+    const handleNewOrder = (data) => {
+
+      const currentPagination = paginationRef.current;
+      fetchOrders(currentPagination.current, currentPagination.pageSize);
+      if (data.type === 'new-order') {
+        message.info(`Đơn hàng mới #${data.orderCode} vừa được tạo!`);
+      } else if (data.type === 'cancelled-by-user') {
+        message.warning(`Đơn hàng #${data.orderCode} đã bị khách hàng hủy!`);
+      }
+
+
+      setDebugInfo(prev => ({
+        ...prev,
+        notifications: [...prev.notifications.slice(-9), {
+          type: 'new-order',
+          timestamp: new Date(),
+          data
+        }]
+      }));
+    };
+
+    // Handler for order status updates - ADDED THIS HANDLER
+    const handleOrderStatusUpdate = (data) => {
+
+      const currentPagination = paginationRef.current;
+      fetchOrders(currentPagination.current, currentPagination.pageSize);
+
+      message.info(`Đơn hàng #${data.orderCode} đã được cập nhật trạng thái!`);
+
+      setDebugInfo(prev => ({
+        ...prev,
+        notifications: [...prev.notifications.slice(-9), {
+          type: 'status-update',
+          timestamp: new Date(),
+          data
+        }]
+      }));
+    };
+
+    // Lắng nghe phản hồi kiểm tra kết nối
+    const handleConnectionVerified = (data) => {
+      message.success('Kết nối socket hoạt động!');
+      setSocketTesting(false);
+      setDebugInfo(prev => ({
+        ...prev,
+        socketChecks: prev.socketChecks + 1,
+        lastResponse: data
+      }));
+    };
+
+    // Lắng nghe thông báo debug
+    const handleDebugNotification = (data) => {
+      setDebugInfo(prev => ({
+        ...prev,
+        notifications: [...prev.notifications.slice(-9), {
+          type: data.type,
+          timestamp: new Date(),
+          data
+        }]
+      }));
+    };
+
+    // Register all needed event listeners
+    socket.on('new-order', handleNewOrder);
+    socket.on('order-status-update', handleOrderStatusUpdate); // NEW LISTENER
+    socket.on('connection-verified', handleConnectionVerified);
+    socket.on('debug-notification', handleDebugNotification);
+
+    // Additional events to listen for
+    socket.on('admin-notification', handleNewOrder);
+    socket.on('cancelled-by-user', handleOrderStatusUpdate);
+
+    return () => {
+      socket.off('new-order', handleNewOrder);
+      socket.off('order-status-update', handleOrderStatusUpdate);
+      socket.off('connection-verified', handleConnectionVerified);
+      socket.off('debug-notification', handleDebugNotification);
+      socket.off('admin-notification', handleNewOrder);
+      socket.off('cancelled-by-user', handleOrderStatusUpdate);
+    };
+  }, [socket, connected, fetchOrders]);
+
+  useEffect(() => {
+    fetchOrders(1, pagination.pageSize);
+  }, [filters, fetchOrders]);
 
   // Kiểm tra kết nối socket
-  const testSocketConnection = () => {
+  const testSocketConnection = useCallback(() => {
     setSocketTesting(true);
     if (socket) {
-      // Gửi yêu cầu kiểm tra kết nối
       socket.emit('check-connection', {
         page: 'admin-orders',
         timestamp: new Date(),
@@ -186,9 +228,7 @@ const OrderListPage = () => {
             ...prev,
             reconnectAttempts: prev.reconnectAttempts + 1
           }));
-          console.log('Đang cố gắng kết nối lại socket...');
         } catch (error) {
-          console.error('Lỗi khi cố gắng kết nối lại socket:', error);
         }
       }
 
@@ -200,10 +240,10 @@ const OrderListPage = () => {
       message.error('Socket không khả dụng');
       setSocketTesting(false);
     }
-  };
+  }, [socket, connected, user]);
 
   // Gửi thông báo broadcast để kiểm tra
-  const sendTestBroadcast = () => {
+  const sendTestBroadcast = useCallback(() => {
     if (socket && connected) {
       socket.emit('admin-broadcast-test', {
         message: 'Kiểm tra broadcast từ admin',
@@ -214,10 +254,10 @@ const OrderListPage = () => {
     } else {
       message.error('Không thể gửi broadcast: Socket chưa kết nối');
     }
-  };
+  }, [socket, connected, user]);
 
   // Xử lý phân trang
-  const handleTableChange = (pagination, filters, sorter) => {
+  const handleTableChange = useCallback((pagination, filters, sorter) => {
     // Cập nhật thông tin sắp xếp nếu có thay đổi
     if (sorter && sorter.field && sorter.order) {
       const sortBy = sorter.field;
@@ -232,10 +272,10 @@ const OrderListPage = () => {
       // Nếu chỉ thay đổi trang
       fetchOrders(pagination.current, pagination.pageSize);
     }
-  };
+  }, [fetchOrders]);
 
   // Cập nhật filter
-  const handleFilterChange = (key, value) => {
+  const handleFilterChange = useCallback((key, value) => {
     setFilters(prev => ({
       ...prev,
       [key]: value
@@ -246,10 +286,10 @@ const OrderListPage = () => {
       ...prev,
       current: 1
     }));
-  };
+  }, []);
 
   // Reset filter
-  const handleResetFilters = () => {
+  const handleResetFilters = useCallback(() => {
     setFilters({
       search: '',
       status: '',
@@ -257,7 +297,10 @@ const OrderListPage = () => {
       sortBy: 'createdAt',
       sortOrder: 'desc'
     });
-  };
+  }, []);
+
+  // Rest of your component code remains the same...
+  // Only keeping what's necessary to show the changes
 
   // Chuyển đến trang chi tiết đơn hàng
   const viewOrderDetail = (orderId) => {

@@ -1,5 +1,5 @@
-// src/pages/client/orders/OrderDetailPage.js (phần còn lại)
-import React, { useState, useEffect } from 'react';
+// src/pages/client/orders/OrderDetailPage.js
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
   Card, Descriptions, Table, Tag, Steps, Divider, Button,
@@ -27,50 +27,62 @@ const OrderDetailPage = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastUpdate, setLastUpdate] = useState(new Date());
+
+  // Lấy thông tin chi tiết đơn hàng
+  const fetchOrderDetail = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log(`[Client OrderDetailPage] Fetching order details for ID: ${id}`);
+      const response = await orderService.getOrderDetail(id);
+
+      if (response.success) {
+        setOrder(response.data);
+        setLastUpdate(new Date());
+        console.log('[Client OrderDetailPage] Order details loaded successfully');
+      } else {
+        setError('Không thể lấy thông tin đơn hàng');
+        console.error('[Client OrderDetailPage] Failed to get order details:', response.message);
+      }
+    } catch (error) {
+      console.error('[Client OrderDetailPage] Error fetching order details:', error);
+      setError('Đã xảy ra lỗi khi tải dữ liệu đơn hàng');
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  // Load order data on initial mount
+  useEffect(() => {
+    fetchOrderDetail();
+  }, [fetchOrderDetail]);
 
   // Lắng nghe sự kiện cập nhật trạng thái đơn hàng từ socket
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !connected) return;
+
+    console.log('[Client OrderDetailPage] Setting up socket event listeners');
 
     const handleStatusUpdate = (data) => {
-      console.log('Order status update received:', data);
+      console.log('[Client OrderDetailPage] Order status update received:', data);
+
+      // Only refresh if this update is for the current order
       if (data.orderId === id) {
-        // Cập nhật lại thông tin đơn hàng khi có thay đổi
+        console.log('[Client OrderDetailPage] Updating current order view');
         fetchOrderDetail();
       }
     };
 
     socket.on('order-status-update', handleStatusUpdate);
 
+    // Clean up event listener on unmount
     return () => {
+      console.log('[Client OrderDetailPage] Removing socket event listeners');
       socket.off('order-status-update', handleStatusUpdate);
     };
-  }, [socket, id]);
-
-  // Lấy thông tin chi tiết đơn hàng
-  const fetchOrderDetail = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await orderService.getOrderDetail(id);
-
-      if (response.success) {
-        setOrder(response.data);
-      } else {
-        setError('Không thể lấy thông tin đơn hàng');
-      }
-    } catch (error) {
-      console.error('Lỗi khi lấy thông tin đơn hàng:', error);
-      setError('Đã xảy ra lỗi khi tải dữ liệu đơn hàng');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchOrderDetail();
-  }, [id]);
+  }, [socket, connected, id, fetchOrderDetail]);
 
   // Xử lý hủy đơn hàng
   const handleCancelOrder = async () => {
@@ -86,7 +98,7 @@ const OrderDetailPage = () => {
         fetchOrderDetail();
       }
     } catch (error) {
-      console.error('Lỗi khi hủy đơn hàng:', error);
+      console.error('[Client OrderDetailPage] Error canceling order:', error);
     }
   };
 
@@ -277,6 +289,9 @@ const OrderDetailPage = () => {
             ) : (
               <Badge status="error" text="Làm mới trang để cập nhật" />
             )}
+            <div style={{ fontSize: '12px', marginTop: '4px', color: '#888' }}>
+              Cập nhật cuối: {moment(lastUpdate).format('HH:mm:ss')}
+            </div>
           </div>
         </div>
 

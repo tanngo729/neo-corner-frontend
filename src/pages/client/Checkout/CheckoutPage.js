@@ -30,61 +30,29 @@ const CheckoutPage = () => {
   const [errors, setErrors] = useState({});
   const [shippingFee, setShippingFee] = useState(0);
   const [orderTotal, setOrderTotal] = useState(0);
-  const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
 
-  // Danh sách quận/huyện Kon Tum
-  const kontumDistricts = [
-    { value: 'tp_kontum', label: 'Thành phố Kon Tum' },
-    { value: 'dak_glei', label: 'Huyện Đắk Glei' },
-    { value: 'ngoc_hoi', label: 'Huyện Ngọc Hồi' },
-    { value: 'dak_to', label: 'Huyện Đắk Tô' },
-    { value: 'kon_plong', label: 'Huyện Kon Plông' },
-    { value: 'kon_ray', label: 'Huyện Kon Rẫy' },
-    { value: 'dak_ha', label: 'Huyện Đắk Hà' },
-    { value: 'sa_thay', label: 'Huyện Sa Thầy' },
-    { value: 'tu_mo_rong', label: 'Huyện Tu Mơ Rông' },
-    { value: 'ia_h_drai', label: 'Huyện Ia H\' Drai' }
+  // Danh sách phường/xã của TP Kon Tum
+  const kontumWards = [
+    { value: 'quang_trung', label: 'Phường Quang Trung' },
+    { value: 'thong_nhat', label: 'Phường Thống Nhất' },
+    { value: 'duy_tan', label: 'Phường Duy Tân' },
+    { value: 'quyet_thang', label: 'Phường Quyết Thắng' },
+    { value: 'le_loi', label: 'Phường Lê Lợi' },
+    { value: 'nguyen_trai', label: 'Phường Nguyễn Trãi' },
+    { value: 'tran_hung_dao', label: 'Phường Trần Hưng Đạo' },
+    { value: 'thang_loi', label: 'Phường Thắng Lợi' },
+    { value: 'ngok_bay', label: 'Phường Ngô Mây' },
+    { value: 'thuy_ba', label: 'Xã Ia Chim' },
+    { value: 'dak_cam', label: 'Xã Đắk Cấm' },
+    { value: 'dak_blom', label: 'Xã Đắk Blà' },
+    { value: 'chu_hrenh', label: 'Xã Chư Hreng' },
+    { value: 'doan_ket', label: 'Xã Đoàn Kết' },
+    { value: 'nguyen_vien', label: 'Xã Ia Chim' },
+    { value: 'vinh_quang', label: 'Xã Vinh Quang' },
+    { value: 'dak_roe', label: 'Xã Đắk Rơ Wa' },
+    { value: 'hoa_binh', label: 'Xã Hòa Bình' }
   ];
-
-  // Danh sách phường/xã cho từng quận/huyện
-  const kontumWards = {
-    tp_kontum: [
-      { value: 'quang_trung', label: 'Phường Quang Trung' },
-      { value: 'thong_nhat', label: 'Phường Thống Nhất' },
-      { value: 'duy_tan', label: 'Phường Duy Tân' },
-      { value: 'quyet_thang', label: 'Phường Quyết Thắng' },
-      { value: 'le_loi', label: 'Phường Lê Lợi' },
-      { value: 'nguyen_trai', label: 'Phường Nguyễn Trãi' },
-      { value: 'tran_hung_dao', label: 'Phường Trần Hưng Đạo' },
-      { value: 'thang_loi', label: 'Phường Thắng Lợi' },
-      { value: 'ngok_bay', label: 'Phường Ngô Mây' },
-      { value: 'thuy_ba', label: 'Xã Ia Chim' },
-      { value: 'dak_cam', label: 'Xã Đắk Cấm' },
-      { value: 'dak_blom', label: 'Xã Đắk Blà' },
-      { value: 'chu_hrenh', label: 'Xã Chư Hreng' },
-      { value: 'doan_ket', label: 'Xã Đoàn Kết' },
-      { value: 'nguyen_vien', label: 'Xã Ia Chim' },
-      { value: 'vinh_quang', label: 'Xã Vinh Quang' },
-      { value: 'dak_roe', label: 'Xã Đắk Rơ Wa' },
-      { value: 'hoa_binh', label: 'Xã Hòa Bình' }
-    ],
-    dak_ha: [
-      { value: 'dak_ha', label: 'Thị trấn Đắk Hà' },
-      { value: 'dak_pxi', label: 'Xã Đắk PXi' }
-    ]
-    // Thêm các phường/xã cho các huyện khác nếu cần
-  };
-
-  // Khi thay đổi quận/huyện, cập nhật danh sách phường/xã
-  const handleDistrictChange = (value) => {
-    form.setFieldsValue({ ward: undefined });
-    if (kontumWards[value]) {
-      setWards(kontumWards[value]);
-    } else {
-      setWards([]);
-    }
-  };
 
   // Fetch cart, payment and shipping methods
   useEffect(() => {
@@ -129,24 +97,14 @@ const CheckoutPage = () => {
             address: {
               street: user.address?.street || '',
               ward: user.address?.ward || '',
-              district: user.address?.district || '',
               city: 'Kon Tum'
             }
           });
-
-          // Nếu có district từ thông tin user, cập nhật danh sách wards
-          if (user.address?.district) {
-            const districtValue = kontumDistricts.find(d => d.label === user.address.district)?.value;
-            if (districtValue && kontumWards[districtValue]) {
-              setWards(kontumWards[districtValue]);
-            }
-          }
         }
 
-        // Thiết lập danh sách quận/huyện
-        setDistricts(kontumDistricts);
+        // Thiết lập danh sách phường/xã
+        setWards(kontumWards);
       } catch (error) {
-        console.error('Failed to initialize checkout:', error);
         message.error('Không thể tải thông tin thanh toán');
       } finally {
         setLoading(false);
@@ -162,17 +120,9 @@ const CheckoutPage = () => {
       if (!selectedShipping || !cart || !cart.items || cart.items.length === 0) return;
 
       try {
-        const city = form.getFieldValue(['address', 'city']);
-        let regionCode = null;
-
-        if (city) {
-          // Map city name to region code
-          if (city === 'Kon Tum') regionCode = 'KT';
-        }
-
         const response = await checkoutService.calculateShippingFee({
           shippingMethodCode: selectedShipping,
-          regionCode,
+          regionCode: 'KT', // Mã vùng của Kon Tum
           orderTotal: cart.subtotal
         });
 
@@ -180,12 +130,11 @@ const CheckoutPage = () => {
           setShippingFee(response.data.data.shippingFee);
         }
       } catch (error) {
-        console.error('Error calculating shipping fee:', error);
       }
     };
 
     calculateShipping();
-  }, [selectedShipping, cart, form]);
+  }, [selectedShipping, cart]);
 
   // Calculate order total
   useEffect(() => {
@@ -205,7 +154,7 @@ const CheckoutPage = () => {
         await form.validateFields([
           'fullName', 'email', 'phone',
           ['address', 'street'], ['address', 'ward'],
-          ['address', 'district'], ['address', 'city']
+          ['address', 'city']
         ]);
 
         // Validate shipping method
@@ -226,7 +175,6 @@ const CheckoutPage = () => {
         setCurrentStep(2);
       }
     } catch (error) {
-      console.error('Validation error:', error);
     }
   };
 
@@ -254,8 +202,7 @@ const CheckoutPage = () => {
       // Lấy dữ liệu form
       const formValues = form.getFieldsValue(true);
 
-      // Lấy nhãn thay vì giá trị của district và ward
-      const selectedDistrict = kontumDistricts.find(d => d.value === formValues.address.district)?.label || formValues.address.district;
+      // Lấy nhãn thay vì giá trị của ward
       const selectedWard = wards.find(w => w.value === formValues.address.ward)?.label || formValues.address.ward;
 
       // Chuẩn bị dữ liệu đơn hàng
@@ -266,7 +213,7 @@ const CheckoutPage = () => {
           phone: formValues.phone,
           street: formValues.address.street,
           ward: selectedWard,
-          district: selectedDistrict,
+          district: 'Thành phố Kon Tum',
           city: formValues.address.city
         },
         paymentMethod: selectedPayment,
@@ -274,24 +221,16 @@ const CheckoutPage = () => {
         notes: formValues.notes || ''
       };
 
-      console.log('Đang tạo đơn hàng với dữ liệu:', orderPayload);
-
-      // Tạo đơn hàng
       const response = await checkoutService.createOrder(orderPayload);
 
       if (response?.data?.success) {
         const order = response.data.data.order;
-        console.log('Đơn hàng đã được tạo:', order);
 
         if (selectedPayment === 'COD' || selectedPayment === 'BANK_TRANSFER') {
-          // Với COD/BANK_TRANSFER: đơn hàng đã được xử lý xong, chuyển đến trang kết quả
           message.success('Đơn hàng đã được tạo thành công!');
           navigate(`/payment/result?orderCode=${order.orderCode}`);
         } else if (selectedPayment === 'MOMO' || selectedPayment === 'VNPAY') {
-          // Với MOMO/VNPAY: cần tạo URL thanh toán
           try {
-            console.log(`Đang tạo URL thanh toán ${selectedPayment} cho đơn hàng:`, order.orderCode);
-
             let paymentRes;
             if (selectedPayment === 'MOMO') {
               paymentRes = await paymentService.createMomoPayment({
@@ -304,17 +243,12 @@ const CheckoutPage = () => {
             }
 
             if (paymentRes?.data?.success && paymentRes.data.data.paymentUrl) {
-              console.log(`URL thanh toán ${selectedPayment} đã được tạo:`, paymentRes.data.data.paymentUrl);
-              // Chuyển đến trang thanh toán
               window.location.href = paymentRes.data.data.paymentUrl;
             } else {
-              console.error('Không thể tạo URL thanh toán:', paymentRes?.data?.message || 'Không có dữ liệu phản hồi');
               throw new Error('Không thể tạo URL thanh toán');
             }
           } catch (paymentError) {
-            console.error('Lỗi tạo URL thanh toán:', paymentError);
             message.error('Không thể tạo URL thanh toán. Vui lòng thử lại sau.');
-            // Chuyển hướng đến trang kết quả với thông báo lỗi
             navigate(`/payment/result?orderCode=${order.orderCode}&status=error&message=Không thể tạo URL thanh toán`);
           }
         }
@@ -322,7 +256,6 @@ const CheckoutPage = () => {
         throw new Error(response?.data?.message || 'Không thể tạo đơn hàng');
       }
     } catch (error) {
-      console.error('Failed to place order:', error);
       message.error('Không thể đặt hàng: ' + (error.message || 'Vui lòng thử lại sau.'));
     } finally {
       setLoading(false);
@@ -354,7 +287,6 @@ const CheckoutPage = () => {
               address: {
                 street: '',
                 ward: '',
-                district: '',
                 city: 'Kon Tum'
               }
             }}
@@ -395,20 +327,7 @@ const CheckoutPage = () => {
                   <Input placeholder="Nhập email" />
                 </Form.Item>
               </Col>
-              <Col xs={24} md={8}>
-                <Form.Item
-                  name={['address', 'district']}
-                  label="Quận/Huyện"
-                  rules={[{ required: true, message: 'Vui lòng chọn quận/huyện' }]}
-                >
-                  <Select
-                    placeholder="Chọn quận/huyện"
-                    onChange={handleDistrictChange}
-                    options={districts}
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={8}>
+              <Col xs={24} md={12}>
                 <Form.Item
                   name={['address', 'ward']}
                   label="Phường/Xã"
@@ -417,11 +336,10 @@ const CheckoutPage = () => {
                   <Select
                     placeholder="Chọn phường/xã"
                     options={wards}
-                    disabled={!form.getFieldValue(['address', 'district'])}
                   />
                 </Form.Item>
               </Col>
-              <Col xs={24} md={8}>
+              <Col xs={24} md={12}>
                 <Form.Item
                   name={['address', 'city']}
                   label="Tỉnh/Thành phố"
@@ -503,7 +421,7 @@ const CheckoutPage = () => {
                 <span className="value">
                   {form.getFieldValue(['address', 'street'])}, {' '}
                   {wards.find(w => w.value === form.getFieldValue(['address', 'ward']))?.label || form.getFieldValue(['address', 'ward'])}, {' '}
-                  {districts.find(d => d.value === form.getFieldValue(['address', 'district']))?.label || form.getFieldValue(['address', 'district'])}, {' '}
+                  Thành phố Kon Tum, {' '}
                   {form.getFieldValue(['address', 'city'])}
                 </span>
               </div>
