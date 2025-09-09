@@ -173,9 +173,7 @@ export const NotificationProvider = ({ children }) => {
         setNotifications(parsed);
         setUnreadCount(parseInt(savedUnreadCount || '0', 10));
       }
-      setTimeout(() => {
-        fetchNotifications();
-      }, 1000);
+      fetchNotifications();
     } catch (error) {
     }
   }, [isAdmin, isAuthenticated, fetchNotifications]);

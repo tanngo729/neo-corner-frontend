@@ -183,8 +183,8 @@ const SearchInput = React.forwardRef(({
           notFoundContent={notFoundContent}
           value={value}
           onChange={setValue}
-          dropdownClassName="search-dropdown"
-          dropdownMatchSelectWidth={false}
+          popupClassName="search-dropdown"
+          popupMatchSelectWidth={false}
         >
           <div className="custom-search">
             <input
@@ -222,8 +222,8 @@ const SearchInput = React.forwardRef(({
         notFoundContent={notFoundContent}
         value={value}
         onChange={setValue}
-        dropdownClassName="search-dropdown"
-        dropdownMatchSelectWidth={false}
+        popupClassName="search-dropdown"
+        popupMatchSelectWidth={false}
       >
         <Input.Search
           placeholder={placeholder}

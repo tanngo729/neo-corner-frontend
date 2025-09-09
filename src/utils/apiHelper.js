@@ -97,18 +97,15 @@ export const handleApiError = (error, isAdmin = false) => {
 
           if (isAdmin && !isDuplicate) {
             try {
-              setTimeout(() => {
-                const currentToken = localStorage.getItem('adminToken');
-                if (currentToken) {
-                  message.error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại', 3);
-                  setTimeout(() => {
-                    localStorage.removeItem('adminToken');
-                    localStorage.removeItem('adminUser');
-                    window.location.href = '/admin/login';
-                  }, 3000);
-                }
-              }, 10000); // Đợi 10 giây
+              const currentToken = localStorage.getItem('adminToken');
+              if (currentToken) {
+                message.error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại', 3);
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminUser');
+                window.location.href = '/admin/login';
+              }
             } catch (err) {
+              console.error('Error handling token expiration:', err);
             }
           }
         }
@@ -117,20 +114,16 @@ export const handleApiError = (error, isAdmin = false) => {
 
         }
         else {
-          // Thời gian chờ ngắn hơn cho client
-          const waitTime = isAdmin ? 3000 : 2000;
           message.error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại', errorMessageDuration);
-          setTimeout(() => {
-            if (isAdmin) {
-              localStorage.removeItem('adminToken');
-              localStorage.removeItem('adminUser');
-              window.location.href = '/admin/login';
-            } else {
-              localStorage.removeItem('token');
-              localStorage.removeItem('user');
-              window.location.href = '/login';
-            }
-          }, waitTime);
+          if (isAdmin) {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUser');
+            window.location.href = '/admin/login';
+          } else {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+          }
         }
         break;
 

@@ -2,18 +2,11 @@
 @import '../../../styles/variables.scss';
 @import '../../../styles/mixins.scss';
 
-/* Container */
-.container {
-  width: 100%;
-  max-width: $container-width;
-  margin: 0 auto;
-  padding: 0 15px;
-  overflow-x: hidden;
-}
+/* Container - Sử dụng global container từ ClientLayout */
 
 /* Section styles */
 .section {
-  padding: 50px 0;
+  padding: $spacing-xl 0;
   width: 100%;
 }
 
@@ -21,7 +14,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: $spacing-lg;
   width: 100%;
 }
 
@@ -69,7 +62,7 @@
 
 /* Hero section - Enhanced for Swiper */
 .hero-section {
-  margin-bottom: 40px;
+  margin-bottom: $spacing-xl;
   width: 100%;
   overflow: hidden;
 }
@@ -161,19 +154,19 @@
 
 /* Features section - Enhanced */
 .features-section {
-  padding: 40px 0;
-  margin-bottom: 20px;
+  padding: $spacing-xl 0;
+  margin-bottom: $spacing-lg;
   background-color: $bg-light;
   width: 100%;
 }
 
 .features-grid {
-  padding: 20px 0;
+  padding: $spacing-lg 0;
 }
 
 .feature-box {
   text-align: center;
-  padding: 30px 20px;
+  padding: $spacing-lg $spacing-md;
   border-radius: $border-radius-lg;
   transition: all $transition-speed;
   height: 100%;
@@ -214,7 +207,7 @@
 
 .feature-icon {
   font-size: 36px;
-  margin-bottom: 20px;
+  margin-bottom: $spacing-md;
   color: $primary-color;
   display: inline-flex;
   align-items: center;
@@ -228,8 +221,8 @@
 }
 
 .feature-box h3 {
-  margin: 0 0 12px;
-  font-size: 20px;
+  margin: 0 0 $spacing-sm;
+  font-size: $font-size-lg;
   font-weight: 600;
   color: $text-color;
 }
@@ -401,14 +394,14 @@
 
 /* Promotion cards - Updated for Swiper */
 .promotion-section {
-  padding: 50px 0;
+  padding: $spacing-xl 0;
   width: 100%;
   background-color: $bg-light;
 }
 
 .promotions-swiper {
   width: 100%;
-  padding-bottom: 50px;
+  padding-bottom: $spacing-xl;
   --swiper-theme-color: #{$primary-color};
   --swiper-navigation-size: 24px;
   --swiper-pagination-color: #{$primary-color};
@@ -450,7 +443,7 @@
 }
 
 .promo-card-content {
-  padding: 25px;
+  padding: $spacing-lg;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
@@ -460,22 +453,22 @@
     content: '';
     position: absolute;
     top: 0;
-    left: 25px;
-    right: 25px;
+    left: $spacing-lg;
+    right: $spacing-lg;
     height: 1px;
     background: linear-gradient(to right, $primary-color, transparent);
   }
 }
 
 .promo-card-content h3 {
-  margin: 0 0 15px;
-  font-size: 22px;
+  margin: 0 0 $spacing-md;
+  font-size: $font-size-xl;
   font-weight: 600;
   color: $text-color;
 }
 
 .promo-card-content p {
-  margin: 0 0 20px;
+  margin: 0 0 $spacing-md;
   color: $text-light;
   flex-grow: 1;
   line-height: 1.6;
@@ -485,8 +478,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding: 12px 15px;
+  margin-bottom: $spacing-md;
+  padding: $spacing-sm $spacing-md;
   background-color: $bg-light;
   border-radius: $border-radius;
   border-left: 3px solid $primary-color;
@@ -495,7 +488,7 @@
 .promo-card-code span {
   font-weight: 600;
   color: $text-color;
-  font-size: 16px;
+  font-size: $font-size-md;
 }
 
 .promo-card-code small {

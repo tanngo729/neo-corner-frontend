@@ -230,16 +230,16 @@
 
   // Phần nội dung thẻ sản phẩm
   .product-card-content {
-    padding: 15px;
+    padding: $spacing-md;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
 
     // Danh mục sản phẩm
     .product-category {
-      font-size: 12px;
+      font-size: $font-size-xs;
       color: $text-light;
-      margin-bottom: 5px;
+      margin-bottom: $spacing-xs;
       transition: color $transition-speed;
 
       &:hover {
@@ -249,9 +249,9 @@
 
     // Tiêu đề sản phẩm
     .product-title {
-      font-size: 16px;
+      font-size: $font-size-md;
       font-weight: 600;
-      margin-bottom: 8px;
+      margin-bottom: $spacing-sm;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -271,7 +271,7 @@
     .product-rating {
       display: flex;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: $spacing-sm;
 
       // Sao đánh giá
       .ant-rate {
@@ -377,7 +377,7 @@
 }
 
 /* Mobile styles */
-@media (max-width: 576px) {
+@include respond-below(sm) {
   .product-card-wrapper {
     .product-card {
       border-radius: $border-radius;
@@ -390,60 +390,60 @@
         .discount-badge,
         .new-badge,
         .out-of-stock-badge {
-          font-size: 10px;
+          font-size: $font-size-xs - 2px;
           padding: 1px 6px;
-          border-radius: 8px;
+          border-radius: $spacing-sm;
         }
       }
       
       .out-of-stock-overlay {
-        font-size: 14px;
+        font-size: $font-size-sm;
         
         .anticon {
           font-size: 24px;
-          margin-bottom: 4px;
+          margin-bottom: $spacing-xs;
         }
       }
     }
     
     .product-card-content {
-      padding: 8px 10px;
+      padding: $spacing-sm $spacing-sm;
       
       .product-title {
-        font-size: 14px;
+        font-size: $font-size-sm;
         min-height: auto;
-        margin-bottom: 4px;
+        margin-bottom: $spacing-xs;
         font-weight: 500;
         -webkit-line-clamp: 2;
         line-height: 1.35;
       }
       
       .product-category {
-        font-size: 11px;
+        font-size: $font-size-xs - 1px;
         margin-bottom: 2px;
       }
       
       .product-rating {
-        margin-bottom: 4px;
+        margin-bottom: $spacing-xs;
       }
       
       .product-price {
-        margin-bottom: 8px;
-        margin-top: 4px;
+        margin-bottom: $spacing-sm;
+        margin-top: $spacing-xs;
         
         .current-price {
-          font-size: 16px;
+          font-size: $font-size-md;
           font-weight: 600;
         }
         
         .original-price {
-          font-size: 12px;
+          font-size: $font-size-xs;
         }
       }
       
       .product-stock-status {
-        font-size: 12px;
-        margin-bottom: 8px;
+        font-size: $font-size-xs;
+        margin-bottom: $spacing-sm;
       }
     }
   }

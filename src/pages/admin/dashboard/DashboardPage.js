@@ -2,19 +2,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card, Row, Col, Statistic, Table, Typography, DatePicker,
-  Spin, Alert, Badge, Tag, Button, Divider, Progress, Empty
+  Spin, Alert, Tag, Button, Progress, Empty
 } from 'antd';
 import {
   ShoppingOutlined, UserOutlined, DollarOutlined, FileTextOutlined,
   ArrowUpOutlined, ArrowDownOutlined, EyeOutlined, ReloadOutlined,
   CheckCircleOutlined, ClockCircleOutlined, CarOutlined, StopOutlined,
-  ExclamationCircleOutlined, CloseCircleOutlined
+  CloseCircleOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { useSocket } from '../../../contexts/SocketContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import orderService from '../../../services/admin/orderService';
+import dashboardService from '../../../services/admin/dashboardService';
 import './DashboardPage.scss';
 
 const { Title, Text } = Typography;
@@ -59,124 +59,49 @@ const DashboardPage = () => {
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
+      setStatsLoading(true);
+      setChartLoading(true);
+      setOrdersLoading(true);
 
-      // Simulate fetching dashboard data from API
-      // In a real implementation, you would call your backend API
-      // For example: const response = await dashboardService.getStats(dateRange);
+      // Fetch all dashboard data using real API calls
+      const [statsResponse, recentOrdersResponse, topProductsResponse, topCustomersResponse, salesChartResponse, statusDistributionResponse] = await Promise.all([
+        dashboardService.getStats(dateRange),
+        dashboardService.getRecentOrders(5),
+        dashboardService.getTopProducts(5, dateRange),
+        dashboardService.getTopCustomers(5, dateRange),
+        dashboardService.getSalesChart(dateRange),
+        dashboardService.getOrderStatusDistribution(dateRange)
+      ]);
 
-      // Mock data for demonstration purposes
-      setTimeout(() => {
-        // Summary statistics
-        setStats({
-          totalOrders: 156,
-          totalRevenue: 12875600,
-          totalCustomers: 84,
-          totalProducts: 45,
-          pendingOrders: 12,
-          processingOrders: 28,
-          completedOrders: 105,
-          cancelledOrders: 11
-        });
-        setStatsLoading(false);
+      // Update states with real data
+      if (statsResponse.success) {
+        setStats(statsResponse.data);
+      }
+      setStatsLoading(false);
 
-        // Recent orders - Replace with actual API call in production
-        const mockRecentOrders = [
-          {
-            _id: '1',
-            orderCode: 'ORD001293',
-            createdAt: new Date(),
-            status: 'PROCESSING',
-            total: 1250000,
-            shippingAddress: { fullName: 'Nguyễn Văn A', phone: '0901234567' },
-            payment: { status: 'COMPLETED' },
-            paymentMethod: 'MOMO'
-          },
-          {
-            _id: '2',
-            orderCode: 'ORD001292',
-            createdAt: new Date(Date.now() - 3600000), // 1 hour ago
-            status: 'COMPLETED',
-            total: 2670000,
-            shippingAddress: { fullName: 'Trần Thị B', phone: '0909876543' },
-            payment: { status: 'COMPLETED' },
-            paymentMethod: 'VNPAY'
-          },
-          {
-            _id: '3',
-            orderCode: 'ORD001291',
-            createdAt: new Date(Date.now() - 7200000), // 2 hours ago
-            status: 'SHIPPING',
-            total: 850000,
-            shippingAddress: { fullName: 'Lê Văn C', phone: '0902468135' },
-            payment: { status: 'PENDING' },
-            paymentMethod: 'COD'
-          },
-          {
-            _id: '4',
-            orderCode: 'ORD001290',
-            createdAt: new Date(Date.now() - 18000000), // 5 hours ago
-            status: 'CANCELLED',
-            total: 3450000,
-            shippingAddress: { fullName: 'Phạm Thị D', phone: '0907531246' },
-            payment: { status: 'REFUNDED' },
-            paymentMethod: 'BANK_TRANSFER'
-          },
-          {
-            _id: '5',
-            orderCode: 'ORD001289',
-            createdAt: new Date(Date.now() - 86400000), // 1 day ago
-            status: 'DELIVERED',
-            total: 1800000,
-            shippingAddress: { fullName: 'Hoàng Văn E', phone: '0903698521' },
-            payment: { status: 'COMPLETED' },
-            paymentMethod: 'MOMO'
-          }
-        ];
-        setRecentOrders(mockRecentOrders);
-        setOrdersLoading(false);
+      if (recentOrdersResponse.success) {
+        setRecentOrders(recentOrdersResponse.data);
+      }
+      setOrdersLoading(false);
 
-        // Sales chart data - Replace with actual API call in production
-        const mockSalesData = Array.from({ length: 30 }, (_, index) => {
-          const date = moment().subtract(29 - index, 'days');
-          return {
-            date: date.format('YYYY-MM-DD'),
-            value: Math.floor(Math.random() * 5000000) + 1000000,
-            orders: Math.floor(Math.random() * 10) + 1
-          };
-        });
-        setSalesData(mockSalesData);
+      if (topProductsResponse.success) {
+        setTopProducts(topProductsResponse.data);
+      }
 
-        // Status distribution data
-        setStatusDistribution([
-          { status: 'PENDING', value: 12, color: '#1890ff' },
-          { status: 'PROCESSING', value: 28, color: '#52c41a' },
-          { status: 'SHIPPING', value: 18, color: '#722ed1' },
-          { status: 'DELIVERED', value: 7, color: '#13c2c2' },
-          { status: 'COMPLETED', value: 80, color: '#52c41a' },
-          { status: 'CANCELLED', value: 11, color: '#f5222d' }
-        ]);
+      if (topCustomersResponse.success) {
+        setTopCustomers(topCustomersResponse.data);
+      }
 
-        // Top products data
-        setTopProducts([
-          { id: 1, name: 'iPhone 15 Pro Max', sold: 24, revenue: 43200000 },
-          { id: 2, name: 'Samsung Galaxy S23 Ultra', sold: 18, revenue: 32400000 },
-          { id: 3, name: 'Macbook Pro M2', sold: 11, revenue: 44000000 },
-          { id: 4, name: 'iPad Air', sold: 9, revenue: 13500000 },
-          { id: 5, name: 'Apple Watch Series 9', sold: 7, revenue: 9100000 }
-        ]);
+      if (salesChartResponse.success) {
+        setSalesData(salesChartResponse.data);
+      }
 
-        // Top customers data
-        setTopCustomers([
-          { id: 1, name: 'Nguyễn Văn A', email: 'nguyen.van.a@example.com', orders: 5, spent: 12500000 },
-          { id: 2, name: 'Trần Thị B', email: 'tran.thi.b@example.com', orders: 4, spent: 9800000 },
-          { id: 3, name: 'Lê Văn C', email: 'le.van.c@example.com', orders: 3, spent: 8700000 },
-          { id: 4, name: 'Phạm Thị D', email: 'pham.thi.d@example.com', orders: 3, spent: 7500000 },
-          { id: 5, name: 'Hoàng Văn E', email: 'hoang.van.e@example.com', orders: 2, spent: 6200000 }
-        ]);
+      if (statusDistributionResponse.success) {
+        setStatusDistribution(statusDistributionResponse.data);
+      }
 
-        setChartLoading(false);
-        setLoading(false);
-      }, 1500); // Simulate network delay
+      setChartLoading(false);
+      setLoading(false);
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -270,48 +195,6 @@ const DashboardPage = () => {
     navigate(`/admin/orders/${orderId}`);
   };
 
-  // Chart configurations for recharts
-  const COLORS = ['#1890ff', '#faad14', '#52c41a', '#722ed1', '#13c2c2', '#52c41a', '#f5222d', '#fa541c'];
-
-  // Custom tooltip for the line chart
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="custom-tooltip" style={{
-          backgroundColor: 'white',
-          padding: '10px',
-          border: '1px solid #ccc',
-          borderRadius: '4px'
-        }}>
-          <p className="label" style={{ margin: '0 0 5px' }}>{`Ngày: ${label}`}</p>
-          <p style={{ margin: '0', color: '#1890ff' }}>{`Doanh thu: ${formatCurrency(payload[0].value)}`}</p>
-          <p style={{ margin: '0', color: '#52c41a' }}>{`Đơn hàng: ${payload[1] ? payload[1].value : 0}`}</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Custom label for pie chart
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name, value }) => {
-    const RADIAN = Math.PI / 180;
-    const radius = outerRadius * 1.1;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    return value > 0 ? (
-      <text
-        x={x}
-        y={y}
-        fill="#333"
-        textAnchor={x > cx ? 'start' : 'end'}
-        dominantBaseline="central"
-        fontSize={12}
-      >
-        {`${name}: ${(percent * 100).toFixed(0)}%`}
-      </text>
-    ) : null;
-  };
 
   // Columns for tables
   const recentOrderColumns = [

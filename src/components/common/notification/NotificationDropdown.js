@@ -297,17 +297,16 @@ const NotificationDropdown = React.memo(({ isAdminProp }) => {
         content={notificationContent}
         trigger="click"
         open={visible}
-        onOpenChange={setVisible}
-        placement="bottomRight"
-        overlayClassName="notification-popover"
-        arrow={false}
-        getPopupContainer={(triggerNode) => triggerNode.parentNode}
-        onVisibleChange={(newVisible) => {
+        onOpenChange={(newVisible) => {
           setVisible(newVisible);
           if (newVisible && refreshNotifications) {
             refreshNotifications();
           }
         }}
+        placement="bottomRight"
+        overlayClassName="notification-popover"
+        arrow={false}
+        getPopupContainer={(triggerNode) => triggerNode.parentNode}
       >
         <Badge count={unreadCount} size="small" offset={[-2, 4]}>
           <Button

@@ -1,0 +1,131 @@
+// Global Reset and Base Styles
+// Centralized reset to avoid conflicts across components
+
+// Import global variables and mixins
+@import 'variables';
+@import 'mixins';
+
+// Box model reset
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// Body and HTML reset
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: $font-family;
+  line-height: 1.6;
+  color: $text-color;
+  background-color: $bg-color;
+}
+
+// Global container styles - SINGLE SOURCE OF TRUTH
+.container {
+  width: 100%;
+  max-width: $container-width;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $spacing-md;
+  padding-right: $spacing-md;
+  box-sizing: border-box;
+
+  // Responsive padding
+  @include respond-below(sm) {
+    padding-left: $spacing-sm;
+    padding-right: $spacing-sm;
+  }
+}
+
+// Image optimization
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+// List reset
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// Button reset
+button {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+// Link reset
+a {
+  color: inherit;
+  text-decoration: none;
+  
+  &:hover {
+    color: $primary-color;
+  }
+}
+
+// Form elements reset
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+// Utility classes
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+// Responsive utilities
+.mobile-only {
+  @include respond-above(md) {
+    display: none !important;
+  }
+}
+
+.desktop-only {
+  @include respond-below(md) {
+    display: none !important;
+  }
+}

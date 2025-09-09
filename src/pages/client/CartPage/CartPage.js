@@ -159,7 +159,7 @@ const CartPage = () => {
     <div className={`page-container cart-page ${fadeIn ? 'fade-in' : ''}`}>
       <div className="cart-header">
         <h1>Giỏ hàng của bạn</h1>
-        <p>({cart.items.length} sản phẩm)</p>
+        <p>({cart.totalItems || cart.items.reduce((n, i) => n + i.quantity, 0)} sản phẩm)</p>
       </div>
 
       {/* Giảm gutter xuống để các phần tử không quá cách xa nhau trên mobile */}

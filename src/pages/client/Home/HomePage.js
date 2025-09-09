@@ -17,7 +17,8 @@ import CustomButton from '../../../components/common/buttoncustom/CustomButton';
 
 import {
   productService,
-  promotionService
+  promotionService,
+  bannerService
 } from '../../../services/client';
 
 import { useCart } from '../../../contexts/CartContext';
@@ -41,8 +42,10 @@ const HomePage = () => {
     featured: true,
     newArrivals: true,
     popular: true,
-    promotions: true
+    promotions: true,
+    banners: true
   });
+  const [heroBannersApi, setHeroBannersApi] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,6 +123,35 @@ const HomePage = () => {
     };
 
     fetchData();
+  }, []);
+
+  // Fetch hero banners for home
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const resp = await bannerService.getActiveBanners({ location: 'home', limit: 5 });
+        const list = resp?.data?.data || resp?.data || [];
+        if (Array.isArray(list) && list.length > 0) {
+          const mapped = list.map((b, idx) => ({
+            id: b._id || idx,
+            image: b.image?.url || '',
+            title: b.title,
+            description: b.description,
+            buttonText: b.buttonText || 'Xem thêm',
+            buttonLink: b.buttonLink || '/',
+          }));
+          setHeroBannersApi(mapped);
+        } else {
+          setHeroBannersApi([]);
+        }
+      } catch (e) {
+        console.error('Lỗi khi lấy banner:', e);
+        setHeroBannersApi([]);
+      } finally {
+        setLoading(prev => ({ ...prev, banners: false }));
+      }
+    };
+    run();
   }, []);
 
   const handleAddToCart = async (product) => {
@@ -226,7 +258,8 @@ const HomePage = () => {
     );
   };
 
-  const heroBanners = [
+  // eslint-disable-next-line no-unused-vars
+  const heroBannersUnused = [
     {
       id: 1,
       image: "https://placehold.co/1200x500/e31836/fff?text=Thực+Đơn+Đa+Dạng",
@@ -259,49 +292,66 @@ const HomePage = () => {
   return (
     <div className="homepage">
       <section className="hero-section">
-        <Swiper
-          modules={[Navigation, Pagination, Autoplay, EffectCube]}
-          effect="cube"
-          cubeEffect={{
-            shadow: true,
-            slideShadows: true,
-            shadowOffset: 20,
-            shadowScale: 0.94,
-          }}
-          slidesPerView={1}
-          navigation
-          pagination={{
-            clickable: true,
-            dynamicBullets: true
-          }}
-          autoplay={{
-            delay: 5000,
-            disableOnInteraction: false
-          }}
-          loop={true}
-          className="hero-carousel"
-        >
-          {heroBanners.map(banner => (
-            <SwiperSlide key={banner.id}>
-              <div className="carousel-item modern-banner" style={{ backgroundImage: `url('${banner.image}')` }}>
-                <div className="carousel-content">
-                  <div className="banner-icon-container">
-                    {banner.icon}
+        {loading.banners ? (
+          <div className="skeleton-container">
+            <Skeleton.Image active style={{ width: '100%', height: 420 }} />
+            <div style={{ padding: '12px 0' }}>
+              <Skeleton active paragraph={{ rows: 2 }} title={false} />
+            </div>
+          </div>
+        ) : heroBannersApi.length > 0 ? (
+          <Swiper
+            modules={[Navigation, Pagination, Autoplay, EffectCube]}
+            effect="cube"
+            cubeEffect={{
+              shadow: true,
+              slideShadows: true,
+              shadowOffset: 20,
+              shadowScale: 0.94,
+            }}
+            slidesPerView={1}
+            navigation
+            pagination={{
+              clickable: true,
+              dynamicBullets: true
+            }}
+            autoplay={{
+              delay: 5000,
+              disableOnInteraction: false
+            }}
+            loop={true}
+            className="hero-carousel"
+          >
+            {heroBannersApi.map(banner => (
+              <SwiperSlide key={banner.id}>
+                <div className="carousel-item modern-banner" style={{ backgroundImage: `url('${banner.image}')` }}>
+                  <div className="carousel-content">
+                    <h2>{banner.title}</h2>
+                    <p>{banner.description}</p>
+                    <CustomButton
+                      type="secondary"
+                      size="large"
+                      onClick={() => navigate(banner.buttonLink)}
+                    >
+                      {banner.buttonText}
+                    </CustomButton>
                   </div>
-                  <h2>{banner.title}</h2>
-                  <p>{banner.description}</p>
-                  <CustomButton
-                    type="secondary"
-                    size="large"
-                    onClick={() => navigate(banner.buttonLink)}
-                  >
-                    {banner.buttonText}
-                  </CustomButton>
                 </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        ) : (
+          // Fallback: show a clean static hero with brand image when no banners
+          <div className="carousel-item modern-banner" style={{ backgroundImage: "url('/neo.jpg')", minHeight: 420 }}>
+            <div className="carousel-content">
+              <h2>Chào mừng đến với Neo Corner</h2>
+              <p>Khám phá ưu đãi và món ngon mỗi ngày</p>
+              <CustomButton type="secondary" size="large" onClick={() => navigate('/products')}>
+                Mua sắm ngay
+              </CustomButton>
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="features-section section">

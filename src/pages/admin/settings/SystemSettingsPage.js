@@ -7,6 +7,7 @@ import { Tabs, Card, Typography } from 'antd';
 // import EmailSettings from './tabs/EmailSettings';
 // import SecuritySettings from './tabs/SecuritySettings';
 import ActivityLogTab from './tabs/ActivityLogTab';
+import BannerListPage from '../banners/BannerListPage';
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -24,6 +25,9 @@ const SystemSettingsPage = () => {
         </TabPane>
         <TabPane tab="Hiển thị" key="display">
           {/* <DisplaySettings /> */}
+        </TabPane>
+        <TabPane tab="Banner" key="banners">
+          <BannerListPage />
         </TabPane>
         <TabPane tab="Thanh toán & Giao hàng" key="payment">
           {/* <PaymentSettings /> */}
@@ -43,3 +47,4 @@ const SystemSettingsPage = () => {
 };
 
 export default SystemSettingsPage;
+

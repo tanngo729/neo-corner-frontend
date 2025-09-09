@@ -27,114 +27,93 @@ html, body {
   width: 100%;
 }
 
-// Cài đặt chung để component working
-.ant-btn-primary {
-  background-color: $primary-color !important;
-  border-color: $primary-color !important;
-  
-  &:hover {
-    background-color: $primary-dark !important;
-    border-color: $primary-dark !important;
-  }
-}
-
-.ant-btn-default {
-  &:hover {
-    color: $primary-color !important;
-    border-color: $primary-color !important;
-  }
-}
-
-.ant-menu-item-selected {
-  color: $primary-color !important;
-  
-  &::after {
-    border-bottom-color: $primary-color !important;
-  }
-}
-
-.ant-badge-count {
-  background-color: $secondary-color !important;
-  color: $text-color !important;
-}
-
-.ant-avatar {
-  &.ant-avatar-icon {
-    background-color: $primary-color !important;
-  }
-}
-
-.ant-drawer-title {
-  color: $text-color !important;
-}
-
-.ant-menu-horizontal > .ant-menu-item-selected a {
-  color: $primary-color !important;
-}
-
-.ant-menu-horizontal > .ant-menu-item:hover {
-  color: $primary-dark !important;
-  
-  a {
-    color: $primary-dark !important;
-  }
-}
-
-// Override default blue focus
-.ant-menu-horizontal > .ant-menu-item::after {
-  border-bottom: 2px solid $primary-color !important;
-}
-
-// Override cho Form và Input
-.ant-input:hover {
-  border-color: $primary-color !important;
-}
-
-.ant-input:focus, .ant-input-focused {
-  border-color: $primary-color !important;
-  box-shadow: 0 0 0 2px rgba($primary-color, 0.2) !important;
-}
-
-.ant-checkbox-checked .ant-checkbox-inner {
-  background-color: $primary-color !important;
-  border-color: $primary-color !important;
-}
-
-.ant-radio-checked .ant-radio-inner {
-  border-color: $primary-color !important;
-  
-  &::after {
-    background-color: $primary-color !important;
-  }
-}
-
-.ant-switch-checked {
-  background-color: $primary-color !important;
-}
-
-// Custom button override
-.custom-button {
-  &.custom-button-primary {
-    background-color: $primary-color !important;
-    border-color: $primary-color !important;
+// Ant Design component theme overrides - using higher specificity instead of !important
+.client-namespace {
+  .ant-btn-primary {
+    background-color: $primary-color;
+    border-color: $primary-color;
     
-    &:hover {
-      background-color: $primary-dark !important;
-      border-color: $primary-dark !important;
+    &:hover,
+    &:focus {
+      background-color: $primary-dark;
+      border-color: $primary-dark;
     }
   }
-  
-  &.custom-button-secondary {
-    background-color: $secondary-color !important;
-    border-color: $secondary-color !important;
-    color: $text-color !important;
-    
-    &:hover {
-      background-color: darken($secondary-color, 10%) !important;
-      border-color: darken($secondary-color, 10%) !important;
+
+  .ant-btn-default {
+    &:hover,
+    &:focus {
+      color: $primary-color;
+      border-color: $primary-color;
     }
   }
+
+  .ant-menu-item-selected {
+    color: $primary-color;
+    
+    &::after {
+      border-bottom-color: $primary-color;
+    }
+  }
+
+  .ant-badge-count {
+    background-color: $secondary-color;
+    color: $text-color;
+  }
+
+  .ant-avatar-icon {
+    background-color: $primary-color;
+  }
+
+  .ant-drawer-title {
+    color: $text-color;
+  }
+
+  .ant-menu-horizontal > .ant-menu-item-selected a {
+    color: $primary-color;
+  }
+
+  .ant-menu-horizontal > .ant-menu-item:hover {
+    color: $primary-dark;
+    
+    a {
+      color: $primary-dark;
+    }
+  }
+
+  .ant-menu-horizontal > .ant-menu-item::after {
+    border-bottom: 2px solid $primary-color;
+  }
+
+  .ant-input:hover {
+    border-color: $primary-color;
+  }
+
+  .ant-input:focus,
+  .ant-input-focused {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+  }
+
+  .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: $primary-color;
+    border-color: $primary-color;
+  }
+
+  .ant-radio-checked .ant-radio-inner {
+    border-color: $primary-color;
+    
+    &::after {
+      background-color: $primary-color;
+    }
+  }
+
+  .ant-switch-checked {
+    background-color: $primary-color;
+  }
 }
+
+// Custom button override - Removed: Now handled by CustomButton.scss to avoid conflicts
 
 // Layout chính - đơn giản hóa
 .layout {
@@ -146,14 +125,14 @@ html, body {
   position: relative;
   overflow-x: hidden;
   
-  padding-top: 145px;
+  padding-top: calc(#{$topbar-height} + #{$header-height} + 5px);
   
   @include respond-below(md) {
     padding-top: $header-height;
   }
   
   @include respond-below(sm) {
-    padding-top: 60px; 
+    padding-top: calc(60px + #{$spacing-xs}); 
   }
 }
 
@@ -161,7 +140,7 @@ html, body {
 .main-content {
   flex: 1;
   min-height: 500px;
-  background-color: #fff;
+  background-color: $bg-color;
   padding-bottom: $spacing-lg;
   width: 100%;
   max-width: 100%;
@@ -172,7 +151,7 @@ html, body {
   }
   
   @include respond-below(sm) {
-    padding-top: 0px;
+    padding-top: 0;
     padding-bottom: $spacing-sm;
   }
   
@@ -194,8 +173,8 @@ html, body {
   max-width: $container-width;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: $spacing-md;
+  padding-right: $spacing-md;
   box-sizing: border-box;
 }
 

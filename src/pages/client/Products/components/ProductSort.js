@@ -21,7 +21,7 @@ const ProductSort = ({ sort, order, onSortChange }) => {
         value={currentValue}
         onChange={handleSortChange}
         className="sort-select"
-        dropdownClassName="sort-dropdown"
+        popupClassName="sort-dropdown"
         suffixIcon={order === 'desc' ? <SortDescendingOutlined /> : <SortAscendingOutlined />}
       >
         <Option value="createdAt-desc">Mới nhất</Option>

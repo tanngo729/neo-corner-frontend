@@ -15,7 +15,7 @@ $header-height: 120px;
   top: $topbar-height; 
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: $z-index-fixed;
   height: auto;
   min-height: 60px;
   line-height: normal;
@@ -267,7 +267,7 @@ $header-height: 120px;
     background-color: #fff;
     width: 100%;
     position: relative;
-    z-index: 1000;
+    z-index: $z-index-sticky;
     overflow: visible;
 
     @include respond-below(md) {
@@ -366,7 +366,7 @@ $header-height: 120px;
           background-color: #fff;
           border-radius: $border-radius;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          z-index: 2500;
+          z-index: $z-index-dropdown;
           padding: $spacing-sm 0;
           opacity: 0;
           visibility: hidden;
@@ -420,7 +420,17 @@ $header-height: 120px;
 @include respond-below(md) {
   .client-header {
     top: 0; // Không có topbar trên mobile
-    padding-top: 10px;
+    padding-top: $spacing-sm;
+    min-height: auto;
+    
+    .header-row {
+      flex-wrap: nowrap;
+      align-items: center;
+    }
+    
+    .header-actions {
+      gap: $spacing-xs;
+    }
   }
 }
 

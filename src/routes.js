@@ -34,6 +34,8 @@ import ProfilePage from './pages/admin/profile/ProfilePage';
 import SystemSettingsPage from './pages/admin/settings/SystemSettingsPage';
 import OrderListPage from './pages/admin/orders/OrderListPage';
 import OrderDetailPage from './pages/admin/orders/OrderDetailPage';
+import BannerListPage from './pages/admin/banners/BannerListPage';
+import BannerFormPage from './pages/admin/banners/BannerFormPage';
 
 // Client pages
 import HomePage from './pages/client/Home/HomePage';
@@ -162,6 +164,23 @@ const AppRoutes = () => {
         <Route path="customers/edit/:id" element={
           <PermissionCheck permission="customers.edit">
             <CustomerFormPage />
+          </PermissionCheck>
+        } />
+
+        {/* Routes banner */}
+        <Route path="banners" element={
+          <PermissionCheck permission="settings.view">
+            <BannerListPage />
+          </PermissionCheck>
+        } />
+        <Route path="banners/create" element={
+          <PermissionCheck permission="settings.edit">
+            <BannerFormPage />
+          </PermissionCheck>
+        } />
+        <Route path="banners/edit/:id" element={
+          <PermissionCheck permission="settings.edit">
+            <BannerFormPage />
           </PermissionCheck>
         } />
 

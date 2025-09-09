@@ -47,13 +47,14 @@ const OrderListPage = () => {
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [socketTesting, setSocketTesting] = useState(false);
-  const [debugInfo, setDebugInfo] = useState({
+  // Debug states (chỉ trong development)
+  const [socketTesting, setSocketTesting] = useState(process.env.NODE_ENV === 'development' ? false : false);
+  const [debugInfo, setDebugInfo] = useState(process.env.NODE_ENV === 'development' ? {
     socketChecks: 0,
     lastResponse: null,
     reconnectAttempts: 0,
     notifications: []
-  });
+  } : {});
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -134,14 +135,17 @@ const OrderListPage = () => {
       }
 
 
-      setDebugInfo(prev => ({
-        ...prev,
-        notifications: [...prev.notifications.slice(-9), {
-          type: 'new-order',
-          timestamp: new Date(),
-          data
-        }]
-      }));
+      // Debug info (chỉ trong development)
+      if (process.env.NODE_ENV === 'development' && setDebugInfo) {
+        setDebugInfo(prev => ({
+          ...prev,
+          notifications: [...(prev.notifications || []).slice(-9), {
+            type: 'new-order',
+            timestamp: new Date(),
+            data
+          }]
+        }));
+      }
     };
 
     // Handler for order status updates - ADDED THIS HANDLER

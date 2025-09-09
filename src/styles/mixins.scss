@@ -29,6 +29,17 @@ $breakpoints: (
   }
 }
 
+@mixin respond-above($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    $breakpoint-value: map-get($breakpoints, $breakpoint);
+    @media (min-width: $breakpoint-value) {
+      @content;
+    }
+  } @else {
+    @warn "Invalid breakpoint: #{$breakpoint}.";
+  }
+}
+
 @mixin flex($direction: row, $justify: flex-start, $align: stretch, $wrap: nowrap) {
   display: flex;
   flex-direction: $direction;
@@ -99,14 +110,15 @@ $breakpoints: (
 
 @mixin container {
   width: 100%;
-  max-width: var(--container-width);
+  max-width: $container-width;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: $spacing-md;
+  padding-right: $spacing-md;
+  box-sizing: border-box;
 }
 
-@mixin loading-spinner($size: 40px, $color: var(--primary-color)) {
+@mixin loading-spinner($size: 40px, $color: $primary-color) {
   position: relative;
   width: $size;
   height: $size;

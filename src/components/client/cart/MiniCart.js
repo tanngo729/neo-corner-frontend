@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Empty, Spin, List, Avatar } from 'antd';
-import { ShoppingCartOutlined, DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import CustomButton from '../../common/buttoncustom/CustomButton';
 import { useCart } from '../../../contexts/CartContext';
 import './MiniCart.scss';

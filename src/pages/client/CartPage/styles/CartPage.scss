@@ -135,16 +135,16 @@
   }
 
   // Mobile optimizations
-  @media (max-width: 576px) {
-    padding: 10px;
+  @include respond-below(sm) {
+    padding: $spacing-sm;
     
     // Header hiệu chỉnh cho mobile
     .cart-header {
-      margin-bottom: 15px;
-      padding-bottom: 10px;
+      margin-bottom: $spacing-md;
+      padding-bottom: $spacing-sm;
       
       h1 {
-        font-size: 18px;
+        font-size: $font-size-lg;
         margin-bottom: 2px;
         
         &:after {
@@ -155,37 +155,37 @@
       }
       
       p {
-        font-size: 13px;
+        font-size: $font-size-sm;
       }
     }
     
     // Điều chỉnh các khoảng cách
     .cart-content {
-      margin-bottom: 15px;
+      margin-bottom: $spacing-md;
       
       // Giảm padding giữa các cột trên mobile
       .ant-row {
-        margin: 0 -5px !important;
+        margin: 0 -#{$spacing-xs} !important;
         
         [class*="ant-col"] {
-          padding: 5px !important;
+          padding: $spacing-xs !important;
         }
       }
     }
     
     // Điều chỉnh container danh sách sản phẩm
     .cart-items-container {
-      padding: 10px;
-      margin-bottom: 10px;
+      padding: $spacing-sm;
+      margin-bottom: $spacing-sm;
       box-shadow: 0 1px 4px rgba($shadow-color, 0.05);
       
       .card-header {
-        padding-bottom: 8px;
-        margin-bottom: 8px;
+        padding-bottom: $spacing-sm;
+        margin-bottom: $spacing-sm;
         
         h2 {
-          font-size: 15px;
-          padding-left: 8px;
+          font-size: $font-size-md;
+          padding-left: $spacing-sm;
           
           &:before {
             width: 2px;
@@ -195,7 +195,7 @@
         
         .ant-btn {
           padding: 3px 6px;
-          font-size: 13px;
+          font-size: $font-size-sm;
           
           svg {
             margin-right: 3px;
@@ -206,36 +206,36 @@
     
     // Điều chỉnh nút tiếp tục mua sắm
     .continue-shopping {
-      margin-top: 10px;
+      margin-top: $spacing-sm;
       
       .ant-btn {
         height: 34px;
-        padding: 0 15px;
-        font-size: 13px;
+        padding: 0 $spacing-md;
+        font-size: $font-size-sm;
       }
     }
     
-    // Màn hình rất nhỏ
+    // Màn hình rất nhỏ  
     @media (max-width: 374px) {
-      padding: 8px;
+      padding: $spacing-xs;
       
       .cart-header {
-        margin-bottom: 10px;
+        margin-bottom: $spacing-sm;
         
         h1 {
-          font-size: 16px;
+          font-size: $font-size-md;
         }
         
         p {
-          font-size: 12px;
+          font-size: $font-size-xs;
         }
       }
       
       .cart-items-container {
-        padding: 8px;
+        padding: $spacing-xs;
         
         .card-header h2 {
-          font-size: 14px;
+          font-size: $font-size-sm;
         }
       }
     }

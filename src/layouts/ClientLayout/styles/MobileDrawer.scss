@@ -9,7 +9,7 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0); /* Bắt đầu trong suốt */
-  z-index: 2000; /* Đảm bảo cao hơn header */
+  z-index: $z-index-modal-backdrop; /* Đảm bảo cao hơn header */
   transition: background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   visibility: visible;
   pointer-events: all;
@@ -27,9 +27,9 @@
   left: 0;
   height: 100vh;
   width: 290px;
-  background-color: #fff;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
-  z-index: 2001; /* Cao hơn overlay */
+  background-color: $bg-color;
+  box-shadow: 2px 0 8px $shadow-color;
+  z-index: $z-index-modal; /* Cao hơn overlay */
   display: flex;
   flex-direction: column;
   transform: translateX(-100%); /* Ẩn hoàn toàn khi đóng */
@@ -65,11 +65,11 @@
 .drawer-logo svg {
   height: 30px;
   width: auto;
-  margin-right: 10px;
+  margin-right: $spacing-sm;
 }
 
 .drawer-logo span {
-  font-size: 16px;
+  font-size: $font-size-md;
   font-weight: 700;
   color: white;
   letter-spacing: 0.5px;
@@ -95,21 +95,21 @@
 .drawer-body {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 20px;
+  padding-bottom: $spacing-md;
 }
 
 /* User Info Section */
 .user-info-section {
   display: flex;
   align-items: center;
-  padding: 15px;
-  background-color: #f9f9f9;
-  border-bottom: 1px solid #eee;
+  padding: $spacing-md;
+  background-color: $bg-light;
+  border-bottom: 1px solid $border-color;
   position: relative;
 }
 
 .user-avatar {
-  margin-right: 15px;
+  margin-right: $spacing-md;
   
   img {
     width: 40px;
@@ -125,22 +125,22 @@
   
   .user-name {
     margin: 0;
-    font-size: 16px;
+    font-size: $font-size-md;
     font-weight: 600;
-    color: #333;
+    color: $text-color;
   }
   
   .user-email {
     margin: 0;
-    font-size: 12px;
-    color: #666;
+    font-size: $font-size-xs;
+    color: $text-light;
     @include truncate(1);
   }
 }
 
 .user-settings-btn {
-  color: #666;
-  font-size: 18px;
+  color: $text-light;
+  font-size: $font-size-lg;
   
   &:hover {
     color: $primary-color;
@@ -151,8 +151,8 @@
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 5px;
-  padding: 15px 10px;
+  gap: $spacing-xs;
+  padding: $spacing-md $spacing-sm;
   
   .quick-action-item {
     display: flex;
@@ -169,7 +169,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 5px;
+      margin-bottom: $spacing-xs;
       font-size: 22px;
       color: $primary-color;
       transition: all 0.3s ease;
@@ -212,8 +212,8 @@
 .drawer-menu-link {
   display: flex;
   align-items: center;
-  padding: 12px 15px;
-  color: #333;
+  padding: $spacing-sm $spacing-md;
+  color: $text-color;
   text-decoration: none;
   transition: all 0.2s;
   width: 100%;
@@ -246,7 +246,7 @@
   cursor: pointer;
   
   svg {
-    margin-right: 5px;
+    margin-right: $spacing-xs;
   }
   
   &:hover {

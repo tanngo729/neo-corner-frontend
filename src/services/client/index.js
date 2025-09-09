@@ -9,6 +9,7 @@ import promotionService from './promotionService';
 import wishlistService from './wishlistService';
 import paymentService from './paymentService';
 import checkoutService from './checkoutService';
+import bannerService from './bannerService';
 
 export {
   authService,
@@ -19,7 +20,8 @@ export {
   promotionService,
   wishlistService,
   paymentService,
-  checkoutService
+  checkoutService,
+  bannerService
 };
 
 export default {
@@ -31,5 +33,6 @@ export default {
   promotion: promotionService,
   wishlist: wishlistService,
   payment: paymentService,
-  checkout: checkoutService
+  checkout: checkoutService,
+  banner: bannerService
 };
